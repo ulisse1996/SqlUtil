@@ -4,9 +4,11 @@ jdk: oraclejdk8
 addons:
   sonarcloud:
     organization: "ulisse1996"
+    token:
+      secure: 61459433977aa0a099c34cee08f234eca991be6c
 script:
   - mvn -T8 clean install jacoco:report
-  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=ulisse1996_SQLUtil
 cache:
   directories:
     - '$HOME/.m2'
