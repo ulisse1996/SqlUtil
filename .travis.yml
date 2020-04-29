@@ -5,7 +5,7 @@ addons:
   sonarcloud:
     organization: "ulisse1996"
 script:
-  - mvn -T8 clean install jacoco:report
+  - mvn -T8 clean install test jacoco:report
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.login=${SONAR_TOKEN}
 cache:
   directories:
