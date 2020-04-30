@@ -1,21 +1,24 @@
 package it.donatoleone.sqlutil;
 
+import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.enums.LikeMatcher;
-import it.donatoleone.sqlutil.impl.AliasFactory;
-import it.donatoleone.sqlutil.impl.SqlUtil;
-import it.donatoleone.sqlutil.impl.WhereFactory;
+import it.donatoleone.sqlutil.impl.*;
 import it.donatoleone.sqlutil.interfaces.From;
-import it.donatoleone.sqlutil.interfaces.Where;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SelectWritingTest {
 
     private static final String SIMPLE_SELECT = "SELECT * FROM TABLE";
+    private static final String SIMPLE_SELECT_WITH_ID = "SELECT * FROM TABLE TB1";
+    private static final String SIMPLE_JOIN = "SELECT * FROM TABLE1 JOIN TABLE2 ON COL3 IN (?,?)";
+    private static final String SIMPLE_JOIN_DEBUG = "SELECT * FROM TABLE1 JOIN TABLE2 ON COL3 IN (3,4)";
+    private static final String COMPOUND_JOIN = "SELECT * FROM TABLE1 JOIN TABLE2 ON (COL3 = ? OR COL3 = ?)";
+    private static final String COMPOUND_JOIN_DEBUG = "SELECT * FROM TABLE1 JOIN TABLE2 ON (COL3 = 3 OR COL3 = 4)";
+    private static final String COMPOUND_JOIN_SINGLE = "SELECT * FROM TABLE1 JOIN TABLE2 ON COL3 = ?";
     private static final String COLUMN_SELECT = "SELECT COL2 , COL1 FROM TABLE";
     private static final String ALIAS_SELECT = "SELECT COL1 AS COLUMN1 , COL2 FROM TABLE";
     private static final String WHERE_EQUALS = ALIAS_SELECT + " WHERE COL3 = ?";
@@ -41,6 +44,9 @@ public class SelectWritingTest {
     private static final String WHERE_LIKE_START_DEBUG = ALIAS_SELECT + " WHERE COL3 LIKE '%VAL'";
     private static final String WHERE_LIKE_END = ALIAS_SELECT + " WHERE COL3 LIKE '?%'";
     private static final String WHERE_LIKE_END_DEBUG = ALIAS_SELECT + " WHERE COL3 LIKE 'VAL%'";
+    private static final String WHERE_EXISTS = ALIAS_SELECT + " WHERE EXISTS (SELECT AL2 FROM TAB1 WHERE AL2 = ?)";
+    private static final String WHERE_EXISTS_DEBUG = ALIAS_SELECT + " WHERE EXISTS (SELECT AL2 FROM TAB1 WHERE AL2 = 2)";
+    private static final String WHERE_EXISTS_OR = ALIAS_SELECT + " WHERE COL3 = ? OR EXISTS (SELECT AL2 FROM TAB1 WHERE AL2 = ?)";
     private static final String WHERE_EQUALS_OR = ALIAS_SELECT + " WHERE COL3 = '3' OR COL4 = 4";
     private static final String COMPOUND_WHERE_1 = "SELECT COL2 , COL1 FROM TABLE WHERE (COL3 = ? OR COL4 = ?)";
     private static final String COMPOUND_WHERE_DEBUG_1 = "SELECT COL2 , COL1 FROM TABLE WHERE (COL3 = 3 OR COL4 = 4)";
@@ -64,6 +70,14 @@ public class SelectWritingTest {
                     SqlUtil.select()
                         .from("TABLE")
                         .getDebugSql()
+            );
+
+            assertEquals(
+                    SIMPLE_SELECT_WITH_ID,
+                    SqlUtil.select()
+                            .from("TABLE")
+                            .withId("TB1")
+                            .getSql()
             );
         } catch (Exception ex) {
             fail(ex);
@@ -288,6 +302,34 @@ public class SelectWritingTest {
                             .where("COL3").like("VAL", LikeMatcher.END_MATCH)
                             .getDebugSql()
             );
+
+            assertEquals(
+                    WHERE_EXISTS,
+                    selectColumns()
+                            .whereExists(
+                                    SqlUtil.select("AL2").from("TAB1")
+                                        .where("AL2").isEqualsTo(2)
+                    ).getSql()
+            );
+
+            assertEquals(
+                    WHERE_EXISTS_DEBUG,
+                    selectColumns()
+                            .whereExists(
+                                    SqlUtil.select("AL2").from("TAB1")
+                                            .where("AL2").isEqualsTo(2)
+                            ).getDebugSql()
+            );
+
+            assertEquals(
+                    WHERE_EXISTS_OR,
+                    selectColumns()
+                            .where("COL3").isEqualsTo(3)
+                            .orWhereExists(
+                                    SqlUtil.select("AL2").from("TAB1")
+                                            .where("AL2").isEqualsTo(2)
+                            ).getSql()
+            );
         } catch (Exception ex) {
             fail(ex);
         }
@@ -362,5 +404,83 @@ public class SelectWritingTest {
                                )
                         ).getSql()
         );
+    }
+
+    @Test
+    public void shouldCreateJoinQuery() {
+        assertEquals(
+                SIMPLE_JOIN,
+                SqlUtil.select()
+                    .from("TABLE1")
+                    .join(JoinType.INNER_JOIN, "TABLE2")
+                    .on("COL3").in(Arrays.asList(3, 4))
+                    .getSql()
+        );
+
+        assertEquals(
+                SIMPLE_JOIN_DEBUG,
+                SqlUtil.select()
+                        .from("TABLE1")
+                        .join(JoinType.INNER_JOIN, "TABLE2")
+                        .on("COL3").in(Arrays.asList(3, 4))
+                        .getDebugSql()
+        );
+
+        assertEquals(
+                COMPOUND_JOIN,
+                SqlUtil.select()
+                    .from("TABLE1")
+                    .join(JoinType.INNER_JOIN, "TABLE2")
+                    .on(
+                            OnFactory.compoundOn(
+                                    OnFactory.on("COL3").isEqualsTo(3),
+                                    OnFactory.orOn("COL3").isEqualsTo(4)
+                            )
+                    )
+                    .getSql()
+
+        );
+
+        assertEquals(
+                COMPOUND_JOIN_DEBUG,
+                SqlUtil.select()
+                        .from("TABLE1")
+                        .join(JoinType.INNER_JOIN, "TABLE2")
+                        .on(
+                                OnFactory.compoundOn(
+                                        OnFactory.on("COL3").isEqualsTo(3),
+                                        OnFactory.orOn("COL3").isEqualsTo(4)
+                                )
+                        )
+                        .getDebugSql()
+
+        );
+
+        assertEquals(
+                COMPOUND_JOIN_SINGLE,
+                SqlUtil.select()
+                        .from("TABLE1")
+                        .join(JoinType.INNER_JOIN, "TABLE2")
+                        .on(
+                                OnFactory.compoundOn(
+                                        OnFactory.on("COL3").isEqualsTo(3)
+                                )
+                        )
+                        .getSql()
+
+        );
+    }
+
+    @Test
+    public void shouldBlockNotAllowedOperation() {
+        assertThrows(IllegalArgumentException.class, () ->
+                SqlUtil.select()
+                    .from("TAB")
+                    .where(WhereFactory.compoundWhere()));
+        assertThrows(IllegalArgumentException.class, () ->
+                SqlUtil.select()
+                        .from("TAB")
+                        .join(JoinType.INNER_JOIN, "TAB2")
+                        .on(OnFactory.compoundOn()));
     }
 }

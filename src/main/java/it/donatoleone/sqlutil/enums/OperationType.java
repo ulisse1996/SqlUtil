@@ -10,7 +10,8 @@ public enum OperationType {
     LESS_EQUALS("<=", true),
     BETWEEN("", false),
     IN("", false),
-    LIKE("", false);
+    LIKE("", false),
+    EXISTS("", false);
 
     private final String val;
     private final boolean simpleOperator;

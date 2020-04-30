@@ -26,4 +26,27 @@ public class StringUtils {
 
         return val.toString();
     }
+
+    public static String replaceSingle(String sql) {
+        int indexAnd = sql.indexOf("AND");
+        int indexOr = sql.indexOf("OR");
+        if (indexAnd < indexOr || indexOr == -1) {
+            return sql.replaceFirst("AND","")
+                    .replace("( ","(");
+        } else {
+            return sql.replaceFirst("OR","")
+                    .replace("( ", "");
+        }
+    }
+
+    public static String replaceFirstAfterParenthesis(String string) {
+        String afterParenthesis = string.substring(string.indexOf('('));
+        return string.substring(0,string.indexOf('(')) + replaceSingle(afterParenthesis);
+    }
+
+    public static String replaceFirstBeforeParenthesis(String string) {
+        String beforeParenthesis = string.substring(0,string.indexOf('('));
+        return beforeParenthesis.replaceFirst("AND","")
+                .replaceFirst("OR","") + string.substring(string.indexOf('('));
+    }
 }

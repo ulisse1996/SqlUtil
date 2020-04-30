@@ -3,7 +3,7 @@ package it.donatoleone.sqlutil.impl;
 import it.donatoleone.sqlutil.interfaces.Alias;
 import it.donatoleone.sqlutil.interfaces.Select;
 
-public class SqlUtil {
+public final class SqlUtil {
 
     private SqlUtil() {}
 

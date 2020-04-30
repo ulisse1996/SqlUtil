@@ -1,4 +1,4 @@
 package it.donatoleone.sqlutil.interfaces;
 
-public interface Drop extends StringSequence {
+public interface Drop extends SqlQuery {
 }

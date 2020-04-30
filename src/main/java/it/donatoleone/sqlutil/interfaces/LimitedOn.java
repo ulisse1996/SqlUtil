@@ -1,4 +1,4 @@
 package it.donatoleone.sqlutil.interfaces;
 
-public interface Create extends SqlQuery {
+public interface LimitedOn extends SqlQuery {
 }

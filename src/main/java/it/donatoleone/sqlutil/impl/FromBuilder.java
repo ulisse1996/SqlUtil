@@ -1,6 +1,8 @@
 package it.donatoleone.sqlutil.impl;
 
+import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,94 +11,87 @@ import java.util.stream.Collectors;
 
 final class FromBuilder implements From {
 
-    public static final String WHERE_STR = " WHERE";
+    private static final String WHERE_STR = " WHERE";
     private final String table;
     private final Select parent;
     private final List<Where<From>> wheres;
     private final List<CompoundWhere> compoundWheres;
+    private final List<Join> joins;
+    private String tableId;
 
     FromBuilder(String table, Select select) {
         this.parent = select;
         this.table = table.toUpperCase();
         this.wheres = new ArrayList<>();
         this.compoundWheres = new ArrayList<>();
+        this.joins = new ArrayList<>();
     }
 
     @Override
     public String getSql() {
         StringBuilder builder = new StringBuilder();
-        builder.append(String.join(" ", parent.getSql(), "FROM " + table));
-        if (!this.wheres.isEmpty()) {
-            extractWheres(builder, Where::getSql);
-        }
-        if (!this.compoundWheres.isEmpty()) {
-            extractCompound(builder, StringSequence::getSql, this.wheres.isEmpty());
-        }
+        builder.append(String.join(" ", parent.getSql(), "FROM " + table ))
+            .append(this.tableId != null ? " "+tableId : "");
+        buildParts(builder, SqlQuery::getSql);
         return builder.toString();
     }
 
     @Override
     public String getDebugSql() {
         StringBuilder builder = new StringBuilder();
-        builder.append(String.join(" ", parent.getDebugSql(), "FROM " + table));
-        if (!this.wheres.isEmpty()) {
-            extractWheres(builder, Where::getDebugSql);
-        }
-        if (!this.compoundWheres.isEmpty()) {
-            extractCompound(builder, StringSequence::getDebugSql, this.wheres.isEmpty());
-        }
+        builder.append(String.join(" ", parent.getDebugSql(), "FROM " + table))
+                .append(this.tableId != null ? " "+tableId : "");
+        buildParts(builder, SqlQuery::getDebugSql);
         return builder.toString();
     }
 
-    private void extractCompound(StringBuilder builder, Function<CompoundWhere, String> function, boolean whereEmpty) {
+    private void buildParts(StringBuilder builder, Function<SqlQuery, String> function) {
+        if (!this.joins.isEmpty()) {
+            extractJoins(builder, function);
+        }
+        if (!this.wheres.isEmpty()) {
+            extractWheres(builder, function);
+        }
+        if (!this.compoundWheres.isEmpty()) {
+            extractCompound(builder, function, this.wheres.isEmpty());
+        }
+    }
+
+    private void extractJoins(StringBuilder builder, Function<SqlQuery, String> function) {
+        this.joins.forEach(join -> {
+            builder.append(" ");
+            builder.append(
+                    StringUtils.replaceSingle(function.apply(join)));
+        });
+
+    }
+
+    private void extractCompound(StringBuilder builder, Function<SqlQuery, String> function, boolean whereEmpty) {
         if (!whereEmpty) {
             buildInside(builder, function, this.compoundWheres);
         } else {
             this.compoundWheres.forEach(compoundWhere -> {
                 builder.append(WHERE_STR);
-                String sql = replaceFirstBeforeParenthesis(function.apply(compoundWhere));
+                String sql = StringUtils.replaceFirstBeforeParenthesis(function.apply(compoundWhere));
                 builder.append(
-                        replaceSingle(sql)
+                        StringUtils.replaceSingle(sql)
                 );
             });
         }
     }
 
-    private String replaceSingle(String sql) {
-        int indexAnd = sql.indexOf("AND");
-        int indexOr = sql.indexOf("OR");
-        if (indexAnd < indexOr || indexOr == -1) {
-            return sql.replaceFirst("AND","")
-                    .replace("( ","(");
-        } else {
-            return sql.replaceFirst("OR","")
-                    .replace("( ", "");
-        }
-    }
-
-    private void buildInside(StringBuilder builder, Function<CompoundWhere, String> function,
+    private void buildInside(StringBuilder builder, Function<SqlQuery, String> function,
                              List<CompoundWhere> wheres) {
         for (CompoundWhere where : wheres) {
             String sql = function.apply(where);
             builder.append(" ");
             builder.append(
-                    replaceFirstAfterParenthesis(sql)
+                    StringUtils.replaceFirstAfterParenthesis(sql)
             );
         }
     }
 
-    private String replaceFirstAfterParenthesis(String string) {
-        String afterParenthesis = string.substring(string.indexOf('('));
-        return string.substring(0,string.indexOf('(')) + replaceSingle(afterParenthesis);
-    }
-
-    private String replaceFirstBeforeParenthesis(String string) {
-        String beforeParenthesis = string.substring(0,string.indexOf('('));
-        return beforeParenthesis.replaceFirst("AND","")
-                .replaceFirst("OR","") + string.substring(string.indexOf('('));
-    }
-
-    private void extractWheres(StringBuilder builder, Function<Where<?>,String> function) {
+    private void extractWheres(StringBuilder builder, Function<SqlQuery,String> function) {
         if (this.wheres.size() != 1) {
             builder.append(WHERE_STR).append(
                     function.apply(this.wheres.get(0))
@@ -124,6 +119,28 @@ final class FromBuilder implements From {
     }
 
     @Override
+    public From whereExists(From subQuery) {
+        Where<From> where = StatementFactory.buildWhere(this);
+        where.exists(subQuery);
+        this.wheres.add(where);
+        return this;
+    }
+
+    @Override
+    public From orWhereExists(From subQuery) {
+        Where<From> where = StatementFactory.buildOrWhere(this);
+        where.exists(subQuery);
+        this.wheres.add(where);
+        return this;
+    }
+
+    @Override
+    public From withId(String tableId) {
+        this.tableId = tableId;
+        return this;
+    }
+
+    @Override
     public Where<From> orWhere(String column) {
         Where<From> where = StatementFactory.buildOrWhere(column, this);
         this.wheres.add(where);
@@ -142,5 +159,12 @@ final class FromBuilder implements From {
         where.setOr(true);
         this.compoundWheres.add(where);
         return this;
+    }
+
+    @Override
+    public Join join(JoinType joinType, String table) {
+        Join join = StatementFactory.buildJoin(joinType, table, this);
+        this.joins.add(join);
+        return join;
     }
 }

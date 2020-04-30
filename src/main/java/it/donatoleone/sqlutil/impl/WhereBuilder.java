@@ -8,6 +8,10 @@ final class WhereBuilder extends BaseWhere<From> {
         super(column, from, or);
     }
 
+    WhereBuilder(From from, boolean or) {
+        super("", from, or);
+    }
+
     @Override
     From getReturn() {
         return this.from;
