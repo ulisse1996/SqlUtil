@@ -4,7 +4,6 @@ import it.donatoleone.sqlutil.enums.LikeMatcher;
 import it.donatoleone.sqlutil.enums.OperationType;
 import it.donatoleone.sqlutil.interfaces.CommonOperations;
 import it.donatoleone.sqlutil.interfaces.From;
-import it.donatoleone.sqlutil.interfaces.SqlQuery;
 import it.donatoleone.sqlutil.util.StringUtils;
 
 import java.util.ArrayList;
