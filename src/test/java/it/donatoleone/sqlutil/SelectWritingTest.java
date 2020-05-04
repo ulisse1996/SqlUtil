@@ -53,6 +53,7 @@ public class SelectWritingTest {
     private static final String COMPOUND_WHERE_2 = "SELECT COL2 , COL1 FROM TABLE WHERE COL3 = ? OR (COL3 = ? OR COL3 = ?)";
     private static final String COMPOUND_WHERE_3 = "SELECT COL2 , COL1 FROM TABLE WHERE COL3 = ? " +
             "OR (COL1 = ? AND COL2 = ?) AND (COL3 = ? OR COL4 = ?)";
+    private static final String JOIN_COMPARISON = "SELECT * FROM TABLE JOIN TABLE1 ON COL1 = COL4";
 
     // SQL Writing Tests
 
@@ -468,6 +469,15 @@ public class SelectWritingTest {
                         )
                         .getSql()
 
+        );
+
+        assertEquals(
+                JOIN_COMPARISON,
+                SqlUtil.select()
+                    .from("TABLE")
+                    .join(JoinType.INNER_JOIN, "TABLE1")
+                    .on("COL1").isEqualsToColumn("COL4")
+                    .getDebugSql()
         );
     }
 

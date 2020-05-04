@@ -3,7 +3,13 @@ package it.donatoleone.sqlutil.impl;
 import it.donatoleone.sqlutil.interfaces.From;
 import it.donatoleone.sqlutil.interfaces.On;
 
+import java.util.Collections;
+import java.util.List;
+
 abstract class BaseOn<N> extends BaseCommonOperations<N> implements On<N> {
+
+    private boolean columnComparison;
+    private String comparedColumn;
 
     BaseOn(String column, From from) {
         this.column = column;
@@ -13,5 +19,43 @@ abstract class BaseOn<N> extends BaseCommonOperations<N> implements On<N> {
     BaseOn(String column, boolean or) {
         this.column = column;
         this.or = or;
+    }
+
+    @Override
+    public N isEqualsToColumn(String column) {
+        this.columnComparison = true;
+        this.comparedColumn = column;
+        return getReturn();
+    }
+
+    @Override
+    public String getDebugSql() {
+        if (this.columnComparison) {
+            return getColumnComparison();
+        }
+
+        return super.getDebugSql();
+    }
+
+    @Override
+    public String getSql() {
+        if (this.columnComparison) {
+            return getColumnComparison();
+        }
+
+        return super.getSql();
+    }
+
+    @Override
+    public List<Object> getParams() {
+        if (this.columnComparison) {
+            return Collections.emptyList();
+        }
+
+        return this.getParamsList();
+    }
+
+    private String getColumnComparison() {
+        return String.format("%s %s = %s", decodeWhereType(), this.column, this.comparedColumn);
     }
 }

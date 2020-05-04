@@ -6,6 +6,7 @@ import it.donatoleone.sqlutil.interfaces.SqlQuery;
 import it.donatoleone.sqlutil.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,11 +41,18 @@ final class CompoundOnBuilder implements CompoundOn {
             List<String> strings = ons.subList(1, ons.size())
                     .stream()
                     .map(function)
+                    .map(String::trim)
                     .collect(Collectors.toList());
             strings.add(0, firstOn);
             return " (" + String.join(" ", strings) + ")";
         }
     }
 
-
+    @Override
+    public List<Object> getParams() {
+        return this.ons.stream()
+                .map(LimitedOn::getParams)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
 }

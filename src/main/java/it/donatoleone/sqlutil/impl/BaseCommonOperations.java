@@ -91,6 +91,13 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
         return getReturn();
     }
 
+    protected List<Object> getParamsList() {
+        if (value != null) {
+            return Collections.singletonList(value);
+        }
+        return this.values;
+    }
+
     private String asString(Object value) {
         if (value instanceof Number) {
             return StringUtils.toString((Number) value);
@@ -148,13 +155,6 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
                 }
             case LIKE:
                 return likeMatcher(debug);
-            case EQUALS:
-            case NOT_EQUALS:
-            case GREATER:
-            case LESS:
-            case GREATER_EQUALS:
-            case LESS_EQUALS:
-                return ""; // Never Happen
             default: throw new IllegalArgumentException("Can't find Operation Type");
         }
     }

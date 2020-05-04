@@ -4,6 +4,7 @@ import it.donatoleone.sqlutil.interfaces.CompoundWhere;
 import it.donatoleone.sqlutil.interfaces.LimitedWhere;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,5 +39,13 @@ final class CompoundWhereBuilder implements CompoundWhere {
     @Override
     public void setOr(boolean or) {
         this.or = or;
+    }
+
+    @Override
+    public List<Object> getParams() {
+        return this.wheres.stream()
+                .map(LimitedWhere::getParams)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 }

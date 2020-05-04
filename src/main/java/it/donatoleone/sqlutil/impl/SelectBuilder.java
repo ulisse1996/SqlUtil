@@ -51,6 +51,20 @@ final class SelectBuilder implements Select {
     }
 
     @Override
+    public Set<String> getColumns() {
+        if (columns.isEmpty() && aliases.isEmpty()) {
+            return Collections.emptySet();
+        } else if (!columns.isEmpty()) {
+            return this.columns;
+        } else {
+            return this.aliases
+                    .stream()
+                    .map(Alias::getAlias)
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    @Override
     public String getSql() {
         return getString(aliases.stream()
             .map(Alias::getSql));

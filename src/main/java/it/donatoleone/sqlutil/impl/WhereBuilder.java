@@ -2,6 +2,8 @@ package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.interfaces.From;
 
+import java.util.List;
+
 final class WhereBuilder extends BaseWhere<From> {
 
     WhereBuilder(String column, From from, boolean or) {
@@ -15,5 +17,10 @@ final class WhereBuilder extends BaseWhere<From> {
     @Override
     From getReturn() {
         return this.from;
+    }
+
+    @Override
+    public List<Object> getParams() {
+        return this.getParamsList();
     }
 }

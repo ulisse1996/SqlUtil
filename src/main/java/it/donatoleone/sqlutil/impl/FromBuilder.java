@@ -2,12 +2,16 @@ package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.util.QueryRunner;
 import it.donatoleone.sqlutil.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 final class FromBuilder implements From {
 
@@ -60,8 +64,12 @@ final class FromBuilder implements From {
     private void extractJoins(StringBuilder builder, Function<SqlQuery, String> function) {
         this.joins.forEach(join -> {
             builder.append(" ");
-            builder.append(
-                    StringUtils.replaceSingle(function.apply(join)));
+            String sql = function.apply(join);
+            if (sql.contains("ONAND ")) {
+                sql = StringUtils.replaceSingle(sql);
+            }
+            sql = sql.replace("( ", "(");
+            builder.append(sql);
         });
 
     }
@@ -166,5 +174,58 @@ final class FromBuilder implements From {
         Join join = StatementFactory.buildJoin(joinType, table, this);
         this.joins.add(join);
         return join;
+    }
+
+    private List<Object> getParams() {
+        // Join
+        List<Object> joinValues = this.joins.stream()
+                .map(Join::getParams)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        // Where
+        List<Object> whereValues = this.wheres.stream()
+                .map(Where::getParams)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        // Compound Where
+        List<Object> compoundValues = this.compoundWheres.stream()
+                .map(CompoundWhere::getParams)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        return Stream.concat(joinValues.stream(),
+                Stream.concat(whereValues.stream(), compoundValues.stream()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Object> readSingle(DataSource dataSource) throws SQLException {
+        return QueryRunner.select(getSql(), dataSource, this.parent.getColumns(), getParams());
+    }
+
+    @Override
+    public Map<String, Object> readSingle(Connection connection) throws SQLException {
+        return QueryRunner.select(getSql(), connection, this.parent.getColumns(), getParams());
+    }
+
+    @Override
+    public Optional<Map<String, Object>> readOptionalSingle(DataSource dataSource) throws SQLException {
+        return QueryRunner.optSelect(getSql(), dataSource, this.parent.getColumns(), getParams());
+    }
+
+    @Override
+    public Optional<Map<String, Object>> readOptionalSingle(Connection connection) throws SQLException {
+        return QueryRunner.optSelect(getSql(), connection, this.parent.getColumns(), getParams());
+    }
+
+    @Override
+    public List<Map<String, Object>> readAll(DataSource dataSource) throws SQLException {
+        return QueryRunner.selectAll(getSql(), dataSource, this.parent.getColumns(), getParams());
+    }
+
+    @Override
+    public List<Map<String, Object>> readAll(Connection connection) throws SQLException {
+        return QueryRunner.selectAll(getSql(), connection, this.parent.getColumns(), getParams());
     }
 }

@@ -3,6 +3,8 @@ package it.donatoleone.sqlutil.impl;
 import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.interfaces.*;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 final class JoinBuilder implements Join {
@@ -53,5 +55,14 @@ final class JoinBuilder implements Join {
     @Override
     public String getDebugSql() {
         return doSqlBuild(SqlQuery::getDebugSql);
+    }
+
+    @Override
+    public List<Object> getParams() {
+        if (singleOn != null) {
+            return this.singleOn.getParams();
+        }
+
+        return this.compoundOn.getParams();
     }
 }

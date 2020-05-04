@@ -2,6 +2,8 @@ package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.interfaces.LimitedWhere;
 
+import java.util.List;
+
 final class LimitedWhereBuilder extends BaseWhere<LimitedWhere> implements LimitedWhere {
 
     @Override
@@ -11,5 +13,10 @@ final class LimitedWhereBuilder extends BaseWhere<LimitedWhere> implements Limit
 
     LimitedWhereBuilder(String column, boolean or) {
         super(column, or);
+    }
+
+    @Override
+    public List<Object> getParams() {
+        return this.getParamsList();
     }
 }
