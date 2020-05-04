@@ -3,7 +3,6 @@ package it.donatoleone.sqlutil.impl;
 import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.interfaces.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
