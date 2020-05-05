@@ -35,7 +35,7 @@ public class StringUtils {
                     .replace("( ","(");
         } else {
             return sql.replaceFirst("OR","")
-                    .replace("( ", "");
+                    .replace("( ", "(");
         }
     }
 

@@ -10,9 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +93,7 @@ public class SelectExecutingTest extends BaseDBTest {
             Map<String, Object> values = SqlUtil.select()
                     .from("TAB1")
                     .where("COL1").isEqualsTo(2)
+                    .where("COL3").isEqualsTo("TEST")
                     .readSingle(dataSource);
             assertAll(
                     () -> assertEquals(3, values.size()),
@@ -171,7 +170,8 @@ public class SelectExecutingTest extends BaseDBTest {
                     .where(
                             WhereFactory.compoundWhere(
                                     WhereFactory.where("COL1").isEqualsTo(2),
-                                    WhereFactory.orWhere("COL1").isLessThan(2)
+                                    WhereFactory.orWhere("COL1").isLessThan(2),
+                                    WhereFactory.orWhere("COL1").isLessThan(Short.MIN_VALUE)
                             )
                     )
                     .readOptionalSingle(dataSource)
@@ -187,7 +187,12 @@ public class SelectExecutingTest extends BaseDBTest {
         try {
             Map<String, Object> values = SqlUtil.select()
                     .from("TAB3")
-                    .where("COL1").isEqualsTo(2.5)
+                    .where(
+                            WhereFactory.compoundWhere(
+                                    WhereFactory.where("COL1").isEqualsTo(2.5),
+                                    WhereFactory.orWhere("COL1").isEqualsTo(2.5f)
+                            )
+                    )
                     .where("COL2").isLessOrEqualsTo(new Timestamp(System.currentTimeMillis()))
                     .where("COL3").isLessOrEqualsTo(new Date(System.currentTimeMillis()))
                     .where("COL4").isEqualsTo('C')
@@ -236,6 +241,24 @@ public class SelectExecutingTest extends BaseDBTest {
             assertAll(
                     () -> assertEquals(1, values.size()),
                     () -> assertEquals(BigDecimal.valueOf(2), values.get("COLUMN1"))
+            );
+        } catch (Exception ex) {
+            fail(ex);
+        }
+    }
+
+    @Test
+    public void shouldMapBooleanTimeByte() {
+        try {
+            Map<String,Object> values = SqlUtil.select()
+                    .from("TAB_TYPE")
+                    .where("COL3").isEqualsTo(true)
+                    .readSingle(dataSource);
+            assertAll(
+                    () -> assertEquals(3, values.size()),
+                    () -> assertTrue(values.get("COL1") instanceof Time),
+                    () -> assertTrue(values.get("COL2") instanceof byte[]),
+                    () -> assertTrue(values.get("COL3") instanceof Boolean)
             );
         } catch (Exception ex) {
             fail(ex);

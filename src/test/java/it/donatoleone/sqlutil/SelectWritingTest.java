@@ -395,7 +395,7 @@ public class SelectWritingTest {
                         .where("COL3").isEqualsTo(3)
                         .orWhere(
                                 WhereFactory.compoundWhere(
-                                        WhereFactory.where("COL1").isEqualsTo(1),
+                                        WhereFactory.orWhere("COL1").isEqualsTo(1),
                                         WhereFactory.where("COL2").isEqualsTo(2)
                                 )
                         ).where(

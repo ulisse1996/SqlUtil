@@ -157,6 +157,8 @@ public class QueryRunner {
             case NCHAR:
             case NVARCHAR:
             case LONGNVARCHAR:
+            case CLOB:
+            case NCLOB:
                 return rs.getString(name);
             case DATE:
                 return rs.getDate(name);
@@ -169,31 +171,24 @@ public class QueryRunner {
             case BINARY:
             case VARBINARY:
             case LONGVARBINARY:
+            case BLOB:
                 return rs.getBytes(name);
-            case NULL:
-                return null;
-            case OTHER:
-                break;
             case BOOLEAN:
                 return rs.getBoolean(name);
+            case SQLXML:
+                return rs.getSQLXML(name);
             case JAVA_OBJECT:
             case DISTINCT:
             case STRUCT:
             case ARRAY:
-            case BLOB:
-            case CLOB:
             case REF:
             case DATALINK:
             case ROWID:
-            case NCLOB:
-            case SQLXML:
             case REF_CURSOR:
                 throw new IllegalArgumentException("Not implemented");
             default:
                 throw new IllegalArgumentException("Can't map value");
         }
-
-        return null;
     }
 
     private static void initParams(PreparedStatement pr, List<Object> params) {
