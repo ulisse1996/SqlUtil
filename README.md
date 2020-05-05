@@ -1,4 +1,5 @@
 # SQLUtil 
 
 A Simple Query Builder for Java
+
 [![Build Status](https://travis-ci.org/ulisse1996/SqlUtil.svg?branch=master)](https://travis-ci.org/ulisse1996/SqlUtil) [![codecov](https://codecov.io/gh/ulisse1996/SqlUtil/branch/master/graph/badge.svg)](https://codecov.io/gh/ulisse1996/SqlUtil) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=it.donatoleone%3Asql-util&metric=alert_status)](https://sonarcloud.io/dashboard?id=it.donatoleone%3Asql-util) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=it.donatoleone%3Asql-util&metric=bugs)](https://sonarcloud.io/dashboard?id=it.donatoleone%3Asql-util) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=it.donatoleone%3Asql-util&metric=code_smells)](https://sonarcloud.io/dashboard?id=it.donatoleone%3Asql-util) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=it.donatoleone%3Asql-util&metric=alert_status)](https://sonarcloud.io/dashboard?id=it.donatoleone%3Asql-util)
