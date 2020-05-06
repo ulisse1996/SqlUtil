@@ -1,6 +1,7 @@
 package it.donatoleone.sqlutil.interfaces;
 
 import it.donatoleone.sqlutil.enums.JoinType;
+import it.donatoleone.sqlutil.enums.Ordering;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -22,6 +23,8 @@ public interface From extends SqlQuery {
     From where(CompoundWhere where);
     From orWhere(CompoundWhere where);
     Join join(JoinType joinType, String table);
+    From orderBy(Ordering ordering, String column);
+    From orderBy(Ordering ordering, String... columns);
 
     // Execute Methods
 

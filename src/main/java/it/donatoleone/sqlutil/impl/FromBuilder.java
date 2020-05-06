@@ -1,7 +1,9 @@
 package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.enums.JoinType;
+import it.donatoleone.sqlutil.enums.Ordering;
 import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.util.Pair;
 import it.donatoleone.sqlutil.util.QueryRunner;
 import it.donatoleone.sqlutil.util.StringUtils;
 
@@ -21,6 +23,7 @@ final class FromBuilder implements From {
     private final List<Where<From>> wheres;
     private final List<CompoundWhere> compoundWheres;
     private final List<Join> joins;
+    private final List<Pair<String[], Ordering>> orders;
     private String tableId;
 
     FromBuilder(String table, Select select) {
@@ -29,6 +32,7 @@ final class FromBuilder implements From {
         this.wheres = new ArrayList<>();
         this.compoundWheres = new ArrayList<>();
         this.joins = new ArrayList<>();
+        this.orders = new ArrayList<>();
     }
 
     @Override
@@ -59,6 +63,24 @@ final class FromBuilder implements From {
         if (!this.compoundWheres.isEmpty()) {
             extractCompound(builder, function, this.wheres.isEmpty());
         }
+
+        if (!this.orders.isEmpty()) {
+            extractOrders(builder);
+        }
+    }
+
+    private void extractOrders(StringBuilder builder) {
+        builder.append(" ORDER BY ");
+        builder.append(this.orders.stream()
+                .map(pair -> {
+                    if (pair.getKey().length == 1) {
+                        return String.format("%s %s", pair.getKey()[0], pair.getValue().name());
+                    }
+
+                    return Arrays.stream(pair.getKey())
+                        .map(s -> String.format("%s %s", s, pair.getValue().name()))
+                        .collect(Collectors.joining(", "));
+                }).collect(Collectors.joining(", ")));
     }
 
     private void extractJoins(StringBuilder builder, Function<SqlQuery, String> function) {
@@ -174,6 +196,18 @@ final class FromBuilder implements From {
         Join join = StatementFactory.buildJoin(joinType, table, this);
         this.joins.add(join);
         return join;
+    }
+
+    @Override
+    public From orderBy(Ordering ordering, String... columns) {
+        this.orders.add(Pair.immutable(columns, ordering));
+        return this;
+    }
+
+    @Override
+    public From orderBy(Ordering ordering, String column) {
+        this.orders.add(Pair.immutable(new String[] {column}, ordering));
+        return this;
     }
 
     private List<Object> getParams() {

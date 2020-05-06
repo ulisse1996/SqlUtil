@@ -1,13 +1,14 @@
 package it.donatoleone.sqlutil;
 
+import it.donatoleone.sqlutil.util.MessageFactory;
+import it.donatoleone.sqlutil.util.Pair;
 import it.donatoleone.sqlutil.util.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UtilitiesTest {
 
@@ -49,5 +50,19 @@ public class UtilitiesTest {
                 () -> assertEquals("2", StringUtils.toString(BigInteger.valueOf(2))),
                 () -> assertEquals("0", StringUtils.toString(myNumber))
         );
+    }
+
+    @Test
+    public void shouldBlockImmutableChange() {
+        try {
+            Pair<String,String> pair = Pair.immutable("","");
+            pair.setValue("");
+        } catch (Exception ex) {
+            assertTrue(ex instanceof IllegalArgumentException);
+            assertEquals(MessageFactory.immutable(), ex.getMessage());
+        }
+
+        Pair<String,String> pair = Pair.mutable("","");
+        assertEquals("mut", pair.setValue("mut"));
     }
 }

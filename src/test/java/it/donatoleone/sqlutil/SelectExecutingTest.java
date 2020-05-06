@@ -1,6 +1,7 @@
 package it.donatoleone.sqlutil;
 
 import it.donatoleone.sqlutil.enums.JoinType;
+import it.donatoleone.sqlutil.enums.Ordering;
 import it.donatoleone.sqlutil.impl.AliasFactory;
 import it.donatoleone.sqlutil.impl.OnFactory;
 import it.donatoleone.sqlutil.impl.SqlUtil;
@@ -317,6 +318,33 @@ public class SelectExecutingTest extends BaseDBTest {
 
             assertFalse(connection.isClosed());
             assertEquals(1, values2.size());
+        } catch (Exception ex) {
+            fail(ex);
+        }
+    }
+
+    @Test
+    public void shouldReturnOrderedResultSet() {
+        try {
+            List<Map<String,Object>> values = SqlUtil.select()
+                    .from("TAB1")
+                    .orderBy(Ordering.ASC, "COL3")
+                    .readAll(dataSource);
+            assertAll(
+                    () -> assertEquals(2, values.size()),
+                    () -> assertTrue("TEST".equalsIgnoreCase((String) values.get(0).get("COL3"))),
+                    () -> assertTrue("TEST2".equalsIgnoreCase((String) values.get(1).get("COL3")))
+            );
+
+            List<Map<String,Object>> values2 = SqlUtil.select()
+                    .from("TAB1")
+                    .orderBy(Ordering.DESC, "COL3")
+                    .readAll(dataSource);
+            assertAll(
+                    () -> assertEquals(2, values.size()),
+                    () -> assertTrue("TEST2".equalsIgnoreCase((String) values2.get(0).get("COL3"))),
+                    () -> assertTrue("TEST".equalsIgnoreCase((String) values2.get(1).get("COL3")))
+            );
         } catch (Exception ex) {
             fail(ex);
         }

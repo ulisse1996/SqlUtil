@@ -2,6 +2,7 @@ package it.donatoleone.sqlutil;
 
 import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.enums.LikeMatcher;
+import it.donatoleone.sqlutil.enums.Ordering;
 import it.donatoleone.sqlutil.impl.*;
 import it.donatoleone.sqlutil.interfaces.From;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,8 @@ public class SelectWritingTest {
     private static final String COMPOUND_WHERE_3 = "SELECT COL2 , COL1 FROM TABLE WHERE COL3 = ? " +
             "OR (COL1 = ? AND COL2 = ?) AND (COL3 = ? OR COL4 = ?)";
     private static final String JOIN_COMPARISON = "SELECT * FROM TABLE JOIN TABLE1 ON COL1 = COL4";
+    private static final String SIMPLE_ORDER = "SELECT * FROM TABLE ORDER BY COL1 DESC";
+    private static final String COMPOUND_ORDER = "SELECT * FROM TABLE ORDER BY COL1 DESC, COL2 DESC, COL3 ASC";
 
     // SQL Writing Tests
 
@@ -492,5 +495,25 @@ public class SelectWritingTest {
                         .from("TAB")
                         .join(JoinType.INNER_JOIN, "TAB2")
                         .on(OnFactory.compoundOn()));
+    }
+
+    @Test
+    public void shouldCreateOrderSelect() {
+        assertEquals(
+                SIMPLE_ORDER,
+                SqlUtil.select()
+                    .from("TABLE")
+                    .orderBy(Ordering.DESC, "COL1")
+                    .getSql()
+        );
+
+        assertEquals(
+                COMPOUND_ORDER,
+                SqlUtil.select()
+                    .from("TABLE")
+                    .orderBy(Ordering.DESC, "COL1", "COL2")
+                    .orderBy(Ordering.ASC, "COL3")
+                    .getSql()
+        );
     }
 }
