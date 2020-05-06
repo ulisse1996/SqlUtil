@@ -14,6 +14,7 @@ import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -294,6 +295,28 @@ public class SelectExecutingTest extends BaseDBTest {
                     () -> assertEquals(val,values3.get("COL1")),
                     () -> assertEquals(val,values4.get("COL1"))
             );
+        } catch (Exception ex) {
+            fail(ex);
+        }
+    }
+
+    @Test
+    public void shouldReturnAStreamResultSet() {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Map<String,Object>> values = SqlUtil.select()
+                    .from("TAB1")
+                    .stream(dataSource)
+                    .collect(Collectors.toList());
+            assertEquals(2, values.size());
+
+            List<Map<String,Object>> values2 = SqlUtil.select()
+                    .from("TAB1")
+                    .stream(connection)
+                    .filter(map -> "TEST".equalsIgnoreCase((String) map.get("COL3")))
+                    .collect(Collectors.toList());
+
+            assertFalse(connection.isClosed());
+            assertEquals(1, values2.size());
         } catch (Exception ex) {
             fail(ex);
         }

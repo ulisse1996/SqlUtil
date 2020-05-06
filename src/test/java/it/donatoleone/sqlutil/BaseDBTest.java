@@ -20,7 +20,7 @@ public abstract class BaseDBTest {
     public static void init() throws Exception {
         Class.forName("org.hsqldb.jdbc.JDBCDriver");
         Properties prop = new Properties();
-        prop.put("url", "jdbc:hsqldb:mem:loans;sql.syntax_ora=true");
+        prop.put("url", "jdbc:hsqldb:mem:test;sql.syntax_ora=true");
         prop.put("user", "sa");
         prop.put("password", "");
         dataSource = JDBCDataSourceFactory.createDataSource(prop);

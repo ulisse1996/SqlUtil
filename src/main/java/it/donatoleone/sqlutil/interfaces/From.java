@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public interface From extends SqlQuery {
 
@@ -30,4 +31,6 @@ public interface From extends SqlQuery {
     Optional<Map<String,Object>> readOptionalSingle(Connection connection) throws SQLException;
     List<Map<String,Object>> readAll(DataSource dataSource) throws SQLException;
     List<Map<String,Object>> readAll(Connection connection) throws SQLException;
+    Stream<Map<String,Object>> stream(DataSource dataSource) throws SQLException;
+    Stream<Map<String,Object>> stream(Connection connection) throws SQLException;
 }

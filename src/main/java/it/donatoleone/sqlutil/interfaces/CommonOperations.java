@@ -2,7 +2,7 @@ package it.donatoleone.sqlutil.interfaces;
 
 import it.donatoleone.sqlutil.enums.LikeMatcher;
 
-public interface CommonOperations<N> extends SqlQuery{
+public interface CommonOperations<N> extends SqlQuery {
 
     N isEqualsTo(Object value);
     N isNotEqualsTo(Object value);

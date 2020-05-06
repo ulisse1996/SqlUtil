@@ -8,8 +8,11 @@ import java.math.BigInteger;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class QueryRunner {
 
@@ -267,5 +270,73 @@ public class QueryRunner {
                         // Ignored
                     }
                 });
+    }
+
+    public static Stream<Map<String, Object>> stream(String sql, DataSource dataSource, Set<String> columns,
+                                                     List<Object> params) throws SQLException {
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            return stream(sql, connection, columns, params, true);
+        } catch (SQLException ex) {
+            silentClose(connection);
+            throw ex;
+        }
+    }
+
+    public static Stream<Map<String, Object>> stream(String sql, Connection connection, Set<String> columns,
+                                                     List<Object> params, boolean fromDatasource) throws SQLException {
+
+        WrappedCloseables wrappedCloseables = WrappedCloseables.EMPTY;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = connection.prepareStatement(sql);
+            initParams(preparedStatement, params);
+            resultSet = preparedStatement.executeQuery();
+
+            if (fromDatasource) {
+                wrappedCloseables = new WrappedCloseables(connection, preparedStatement, resultSet);
+            } else {
+                wrappedCloseables = new WrappedCloseables(preparedStatement, resultSet);
+            }
+            WrappedCloseables finalWrappedCloseables = wrappedCloseables;
+            ResultSet finalResultSet = resultSet;
+            return StreamSupport.stream(new Spliterators.AbstractSpliterator<Map<String,Object>>(
+                    Long.MAX_VALUE, Spliterator.ORDERED) {
+                @Override
+                public boolean tryAdvance(Consumer<? super Map<String,Object>> action) {
+                    try {
+                        if (finalResultSet.next()) {
+                            action.accept(mapValue(finalResultSet, columns));
+                            return true;
+                        }
+
+                        return false;
+                    } catch (SQLException ex) {
+                        finalWrappedCloseables.close();
+                        throw new SQLRuntimeException(ex);
+                    }
+                }
+            }, false).onClose(wrappedCloseables::close);
+        } catch (SQLException ex) {
+            wrappedCloseables.close();
+            silentClose(resultSet, preparedStatement);
+            throw ex;
+        }
+    }
+    
+    private static class WrappedCloseables {
+        
+        private final AutoCloseable[] closeables;
+        private static final WrappedCloseables EMPTY = new WrappedCloseables();
+        
+        private WrappedCloseables(AutoCloseable... autoCloseables) {
+            this.closeables = autoCloseables;
+        }
+
+        public void close() {
+            silentClose(closeables);
+        }
     }
 }

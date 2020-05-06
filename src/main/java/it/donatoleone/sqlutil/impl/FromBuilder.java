@@ -228,4 +228,14 @@ final class FromBuilder implements From {
     public List<Map<String, Object>> readAll(Connection connection) throws SQLException {
         return QueryRunner.selectAll(getSql(), connection, this.parent.getColumns(), getParams());
     }
+
+    @Override
+    public Stream<Map<String, Object>> stream(DataSource dataSource) throws SQLException {
+        return QueryRunner.stream(getSql(), dataSource, this.parent.getColumns(), getParams());
+    }
+
+    @Override
+    public Stream<Map<String, Object>> stream(Connection connection) throws SQLException {
+        return QueryRunner.stream(getSql(), connection, this.parent.getColumns(), getParams(), false);
+    }
 }

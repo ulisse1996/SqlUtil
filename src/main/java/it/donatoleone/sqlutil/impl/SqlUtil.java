@@ -3,6 +3,8 @@ package it.donatoleone.sqlutil.impl;
 import it.donatoleone.sqlutil.interfaces.Alias;
 import it.donatoleone.sqlutil.interfaces.Select;
 
+import java.util.Map;
+
 public final class SqlUtil {
 
     private SqlUtil() {}
