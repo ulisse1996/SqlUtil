@@ -7,6 +7,11 @@ import it.donatoleone.sqlutil.util.MessageFactory;
 
 import java.util.Objects;
 
+/**
+ * Extended Implementation of {@link it.donatoleone.sqlutil.interfaces.CommonOperations} used
+ * on {@link Where} cause
+ * @param <N>
+ */
 abstract class BaseWhere<N> extends BaseCommonOperations<N> implements Where<N> {
 
     protected From subQuery;

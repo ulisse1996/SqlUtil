@@ -2,6 +2,9 @@ package it.donatoleone.sqlutil.enums;
 
 import it.donatoleone.sqlutil.util.StringValue;
 
+/**
+ * Constants for Join Type used in {@link it.donatoleone.sqlutil.interfaces.Join}
+ */
 public enum JoinType implements StringValue {
 
     INNER_JOIN("JOIN"),

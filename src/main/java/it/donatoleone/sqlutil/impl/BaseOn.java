@@ -6,6 +6,14 @@ import it.donatoleone.sqlutil.interfaces.On;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Extended base implementation of {@link it.donatoleone.sqlutil.interfaces.CommonOperations} used
+ * for {@link On} cause
+ *
+ * @see OnBuilder
+ * @see LimitedOnBuilder
+ * @param <N> return type of operations
+ */
 abstract class BaseOn<N> extends BaseCommonOperations<N> implements On<N> {
 
     private boolean columnComparison;

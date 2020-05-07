@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Create a {@link CompoundWhere} that group a set of {@link it.donatoleone.sqlutil.interfaces.Where} cause
+ */
 final class CompoundWhereBuilder implements CompoundWhere {
 
     private boolean or;

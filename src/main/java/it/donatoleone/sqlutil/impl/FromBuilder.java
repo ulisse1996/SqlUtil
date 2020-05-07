@@ -9,6 +9,7 @@ import it.donatoleone.sqlutil.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
@@ -244,6 +245,16 @@ final class FromBuilder implements From {
     }
 
     @Override
+    public <R> R readSingle(ThrowingFunction<ResultSet, R, SQLException> mapper, DataSource dataSource) throws SQLException {
+        return QueryRunner.select(getSql(), dataSource, getParams(), mapper);
+    }
+
+    @Override
+    public <R> R readSingle(ThrowingFunction<ResultSet, R, SQLException> mapper, Connection connection) throws SQLException {
+        return QueryRunner.select(getSql(), connection, getParams(), mapper);
+    }
+
+    @Override
     public Optional<Map<String, Object>> readOptionalSingle(DataSource dataSource) throws SQLException {
         return QueryRunner.optSelect(getSql(), dataSource, this.parent.getColumns(), getParams());
     }
@@ -251,6 +262,16 @@ final class FromBuilder implements From {
     @Override
     public Optional<Map<String, Object>> readOptionalSingle(Connection connection) throws SQLException {
         return QueryRunner.optSelect(getSql(), connection, this.parent.getColumns(), getParams());
+    }
+
+    @Override
+    public <R> Optional<R> readOptionalSingle(ThrowingFunction<ResultSet, R, SQLException> mapper, DataSource dataSource) throws SQLException {
+        return QueryRunner.optSelect(getSql(), dataSource, getParams(), mapper);
+    }
+
+    @Override
+    public <R> Optional<R> readOptionalSingle(ThrowingFunction<ResultSet, R, SQLException> mapper, Connection connection) throws SQLException {
+        return QueryRunner.optSelect(getSql(), connection, getParams(), mapper);
     }
 
     @Override
@@ -264,6 +285,16 @@ final class FromBuilder implements From {
     }
 
     @Override
+    public <R> List<R> readAll(ThrowingFunction<ResultSet, R, SQLException> mapper, DataSource dataSource) throws SQLException {
+        return QueryRunner.selectAll(getSql(), dataSource, getParams(), mapper);
+    }
+
+    @Override
+    public <R> List<R> readAll(ThrowingFunction<ResultSet, R, SQLException> mapper, Connection connection) throws SQLException {
+        return QueryRunner.selectAll(getSql(), connection, getParams(), mapper);
+    }
+
+    @Override
     public Stream<Map<String, Object>> stream(DataSource dataSource) throws SQLException {
         return QueryRunner.stream(getSql(), dataSource, this.parent.getColumns(), getParams());
     }
@@ -271,5 +302,15 @@ final class FromBuilder implements From {
     @Override
     public Stream<Map<String, Object>> stream(Connection connection) throws SQLException {
         return QueryRunner.stream(getSql(), connection, this.parent.getColumns(), getParams(), false);
+    }
+
+    @Override
+    public <R> Stream<R> stream(ThrowingFunction<ResultSet, R, SQLException> mapper, DataSource dataSource) throws SQLException {
+        return QueryRunner.stream(getSql(), dataSource, getParams(), mapper, true);
+    }
+
+    @Override
+    public <R> Stream<R> stream(ThrowingFunction<ResultSet, R, SQLException> mapper, Connection connection) throws SQLException {
+        return QueryRunner.stream(getSql(), connection, getParams(), mapper, false);
     }
 }

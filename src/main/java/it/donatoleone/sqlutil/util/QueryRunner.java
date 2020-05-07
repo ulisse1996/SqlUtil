@@ -1,6 +1,7 @@
 package it.donatoleone.sqlutil.util;
 
 import it.donatoleone.sqlutil.exceptions.SQLRuntimeException;
+import it.donatoleone.sqlutil.interfaces.ThrowingFunction;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -295,11 +296,7 @@ public class QueryRunner {
             initParams(preparedStatement, params);
             resultSet = preparedStatement.executeQuery();
 
-            if (fromDatasource) {
-                wrappedCloseables = new WrappedCloseables(connection, preparedStatement, resultSet);
-            } else {
-                wrappedCloseables = new WrappedCloseables(preparedStatement, resultSet);
-            }
+            wrappedCloseables = getWrappedCloseables(connection, fromDatasource, preparedStatement, resultSet);
             WrappedCloseables finalWrappedCloseables = wrappedCloseables;
             ResultSet finalResultSet = resultSet;
             return StreamSupport.stream(new Spliterators.AbstractSpliterator<Map<String,Object>>(
@@ -312,6 +309,7 @@ public class QueryRunner {
                             return true;
                         }
 
+                        finalWrappedCloseables.close();
                         return false;
                     } catch (SQLException ex) {
                         finalWrappedCloseables.close();
@@ -325,7 +323,130 @@ public class QueryRunner {
             throw ex;
         }
     }
-    
+
+    public static <R> R select(String sql, DataSource dataSource, List<Object> params,
+                               ThrowingFunction<ResultSet,R, SQLException> mapper) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            return select(sql, connection, params, mapper);
+        }
+    }
+
+    public static <R> R select(String sql, Connection connection, List<Object> params,
+                               ThrowingFunction<ResultSet, R, SQLException> mapper) throws SQLException {
+        ResultSet rs = null;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            initParams(preparedStatement, params);
+            rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                return mapper.apply(rs);
+            } else {
+                return null;
+            }
+        } finally {
+            silentClose(rs);
+        }
+    }
+
+    public static <R> Optional<R> optSelect(String sql, DataSource dataSource, List<Object> params, ThrowingFunction<ResultSet,R, SQLException> mapper)
+            throws SQLException {
+        return fromCustom(select(sql, dataSource, params, mapper));
+    }
+
+    public static <R> Optional<R> optSelect(String sql, Connection connection, List<Object> params, ThrowingFunction<ResultSet,R, SQLException> mapper)
+            throws SQLException {
+        return fromCustom(select(sql, connection, params, mapper));
+    }
+
+    private static <R> Optional<R> fromCustom(R obj) {
+        return Optional.ofNullable(obj);
+    }
+
+    public static <R> List<R> selectAll(String sql, DataSource dataSource, List<Object> params,
+                                        ThrowingFunction<ResultSet,R, SQLException> mapper) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            return selectAll(sql, connection, params, mapper);
+        }
+    }
+
+    public static <R> List<R> selectAll(String sql, Connection connection, List<Object> params,
+                                        ThrowingFunction<ResultSet, R, SQLException> mapper) throws SQLException {
+        ResultSet rs = null;
+        List<R> values = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            initParams(preparedStatement, params);
+            rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                values.add(mapper.apply(rs));
+            }
+            return values;
+        } finally {
+            silentClose(rs);
+        }
+    }
+
+    public static <R> Stream<R> stream(String sql, DataSource dataSource, List<Object> params,
+                                       ThrowingFunction<ResultSet, R, SQLException> mapper, boolean fromDatasource)
+                                        throws SQLException{
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            return stream(sql, connection, params, mapper, fromDatasource);
+        } catch (SQLException ex) {
+            silentClose(connection);
+            throw ex;
+        }
+    }
+
+    public static <R> Stream<R> stream(String sql, Connection connection, List<Object> params,
+                                       ThrowingFunction<ResultSet, R, SQLException> mapper, boolean fromDatasource)
+                                        throws SQLException {
+        WrappedCloseables wrappedCloseables = WrappedCloseables.EMPTY;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = connection.prepareStatement(sql);
+            initParams(preparedStatement, params);
+            resultSet = preparedStatement.executeQuery();
+
+            wrappedCloseables = getWrappedCloseables(connection, fromDatasource, preparedStatement, resultSet);
+            WrappedCloseables finalWrappedCloseables = wrappedCloseables;
+            ResultSet finalResultSet = resultSet;
+            return StreamSupport.stream(new Spliterators.AbstractSpliterator<R>(
+                    Long.MAX_VALUE, Spliterator.ORDERED) {
+                @Override
+                public boolean tryAdvance(Consumer<? super R> action) {
+                    try {
+                        if (finalResultSet.next()) {
+                            action.accept(mapper.apply(finalResultSet));
+                            return true;
+                        }
+
+                        finalWrappedCloseables.close();
+                        return false;
+                    } catch (SQLException ex) {
+                        finalWrappedCloseables.close();
+                        throw new SQLRuntimeException(ex);
+                    }
+                }
+            }, false).onClose(wrappedCloseables::close);
+        } catch (SQLException ex) {
+            wrappedCloseables.close();
+            silentClose(resultSet, preparedStatement);
+            throw ex;
+        }
+    }
+
+    private static WrappedCloseables getWrappedCloseables(Connection connection, boolean fromDatasource,
+                                                          PreparedStatement preparedStatement, ResultSet resultSet) {
+        WrappedCloseables wrappedCloseables;
+        if (fromDatasource) {
+            wrappedCloseables = new WrappedCloseables(connection, preparedStatement, resultSet);
+        } else {
+            wrappedCloseables = new WrappedCloseables(preparedStatement, resultSet);
+        }
+        return wrappedCloseables;
+    }
+
     private static class WrappedCloseables {
         
         private final AutoCloseable[] closeables;

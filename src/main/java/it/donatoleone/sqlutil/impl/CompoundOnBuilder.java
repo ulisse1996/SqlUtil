@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Create a {@link CompoundOn} that group a set of {@link it.donatoleone.sqlutil.interfaces.On} cause
+ */
 final class CompoundOnBuilder implements CompoundOn {
 
     private final List<LimitedOn> ons;

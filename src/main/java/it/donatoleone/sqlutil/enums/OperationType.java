@@ -1,5 +1,8 @@
 package it.donatoleone.sqlutil.enums;
 
+/**
+ * Define available operations for {@link it.donatoleone.sqlutil.interfaces.CommonOperations}
+ */
 public enum OperationType {
 
     EQUALS("=", true),

@@ -7,20 +7,25 @@ import it.donatoleone.sqlutil.impl.OnFactory;
 import it.donatoleone.sqlutil.impl.SqlUtil;
 import it.donatoleone.sqlutil.impl.WhereFactory;
 import it.donatoleone.sqlutil.interfaces.Alias;
+import it.donatoleone.sqlutil.interfaces.ThrowingFunction;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.sql.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SelectExecutingTest extends BaseDBTest {
+
+    private static final ThrowingFunction<ResultSet, CustomObject, SQLException> MAPPER = (rs) ->
+        new CustomObject(rs.getLong("COL1"),
+                rs.getLong("COL2"),
+                rs.getString("COL3"));
 
     @Test
     public void shouldReturnOneCompleteRecord() {
@@ -347,6 +352,102 @@ public class SelectExecutingTest extends BaseDBTest {
             );
         } catch (Exception ex) {
             fail(ex);
+        }
+    }
+
+    @Test
+    public void shouldUseCustomerMapper() {
+        try (Connection connection = dataSource.getConnection()) {
+
+            CustomObject defaultObj = new CustomObject(2,3, "TEST");
+            CustomObject defaultObj2 = new CustomObject(3,4,"TEST2");
+
+            CustomObject object1 = SqlUtil.select()
+                    .from("TAB1")
+                    .readSingle(MAPPER, dataSource);
+
+            CustomObject object2 = SqlUtil.select()
+                    .from("TAB1")
+                    .readSingle(MAPPER, connection);
+
+            assertEquals(defaultObj, object1);
+            assertEquals(defaultObj, object2);
+
+            List<CustomObject> objects = SqlUtil.select()
+                    .from("TAB1")
+                    .readAll(MAPPER, dataSource);
+
+            List<CustomObject> objects2 = SqlUtil.select()
+                    .from("TAB1")
+                    .readAll(MAPPER, connection);
+
+            assertAll(
+                    () -> assertEquals(2, objects.size()),
+                    () -> assertTrue(objects.contains(defaultObj)),
+                    () -> assertTrue(objects.contains(defaultObj2))
+            );
+
+            assertAll(
+                    () -> assertEquals(2, objects2.size()),
+                    () -> assertTrue(objects2.contains(defaultObj)),
+                    () -> assertTrue(objects2.contains(defaultObj2))
+            );
+
+            Optional<CustomObject> optionalCustomObject = SqlUtil.select()
+                    .from("TAB1")
+                    .where("COL1").isEqualsTo(-1)
+                    .readOptionalSingle(MAPPER, dataSource);
+
+            Optional<CustomObject> optionalCustomObject2 = SqlUtil.select()
+                    .from("TAB1")
+                    .where("COL1").isEqualsTo(-1)
+                    .readOptionalSingle(MAPPER, connection);
+
+            assertFalse(optionalCustomObject.isPresent());
+            assertFalse(optionalCustomObject2.isPresent());
+
+            List<CustomObject> objectList = SqlUtil.select()
+                    .from("TAB1")
+                    .stream(MAPPER, dataSource)
+                    .collect(Collectors.toList());
+            List<CustomObject> objectList2 = SqlUtil.select()
+                    .from("TAB1")
+                    .stream(MAPPER, connection)
+                    .collect(Collectors.toList());
+
+            assertEquals(objects, objectList);
+            assertEquals(objects, objectList2);
+
+        } catch (Exception ex) {
+            fail(ex);
+        }
+    }
+
+    public static class CustomObject {
+
+        private final long col1;
+        private final long col2;
+        private final String col3;
+
+        public CustomObject(long col1, long col2, String col3) {
+            this.col1 = col1;
+            this.col2 = col2;
+            this.col3 = col3;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CustomObject that = (CustomObject) o;
+            return col1 == that.col1 &&
+                    col2 == that.col2 &&
+                    Objects.equals(col3, that.col3);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(col1, col2, col3);
         }
     }
 }

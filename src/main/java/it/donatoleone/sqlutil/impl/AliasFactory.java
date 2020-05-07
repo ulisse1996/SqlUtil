@@ -5,18 +5,35 @@ import it.donatoleone.sqlutil.util.MessageFactory;
 
 import java.util.Objects;
 
+/**
+ * Factory for create Alias used in {@link it.donatoleone.sqlutil.interfaces.Select}
+ */
 public final class AliasFactory {
 
     private AliasFactory() {}
 
+    /**
+     * Create a simple select with alias equals to column
+     * @param column selected column
+     * @return a new Alias instance
+     */
     public static Alias column(String column) {
         return new AliasImpl(column);
     }
 
+    /**
+     * Create an alias for column selection
+     * @param column selected column
+     * @param alias alias
+     * @return a new Alias instance
+     */
     public static Alias as(String column, String alias) {
         return new AliasImpl(column, alias);
     }
 
+    /**
+     * Private {@link Alias} implementation for alias instantiation
+     */
     private static class AliasImpl implements Alias {
 
         private final String key;

@@ -12,6 +12,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Base class for {@link CommonOperations} builder implementation
+ *
+ * @see BaseWhere
+ * @see BaseOn
+ * @param <N> return type of operation
+ */
 abstract class BaseCommonOperations<N> implements CommonOperations<N> {
 
     private static final String LIKE_FORMAT = "%s %s LIKE '%s'";
@@ -23,6 +30,13 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
     protected LikeMatcher matcher;
     protected boolean or;
 
+    /**
+     * Get return element after an operation build
+     *
+     * @see From
+     * @see it.donatoleone.sqlutil.interfaces.LimitedWhere
+     * @return return Type
+     */
     abstract N getReturn();
 
     @Override
