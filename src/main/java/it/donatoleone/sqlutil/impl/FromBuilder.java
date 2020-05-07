@@ -306,7 +306,7 @@ final class FromBuilder implements From {
 
     @Override
     public <R> Stream<R> stream(ThrowingFunction<ResultSet, R, SQLException> mapper, DataSource dataSource) throws SQLException {
-        return QueryRunner.stream(getSql(), dataSource, getParams(), mapper, true);
+        return QueryRunner.stream(getSql(), dataSource, getParams(), mapper);
     }
 
     @Override

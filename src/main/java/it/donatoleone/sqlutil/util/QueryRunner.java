@@ -6,8 +6,8 @@ import it.donatoleone.sqlutil.interfaces.ThrowingFunction;
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.*;
 import java.sql.Date;
+import java.sql.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -278,15 +278,43 @@ public class QueryRunner {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
-            return stream(sql, connection, columns, params, true);
+            return stream(sql, connection, params, defaultMapper(columns), true);
         } catch (SQLException ex) {
             silentClose(connection);
             throw ex;
         }
     }
 
-    public static Stream<Map<String, Object>> stream(String sql, Connection connection, Set<String> columns,
-                                                     List<Object> params, boolean fromDatasource) throws SQLException {
+
+    public static <R> Stream<R> stream(String sql, DataSource dataSource,
+                                    List<Object> params,
+                                    ThrowingFunction<ResultSet, R, SQLException> mapper
+                               ) throws SQLException {
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            return stream(sql, connection, params, mapper, true);
+        } catch (SQLException ex) {
+            silentClose(connection);
+            throw ex;
+        }
+    }
+
+    private static ThrowingFunction<ResultSet, Map<String,Object>, SQLException> defaultMapper(Set<String> columns) {
+        return rs -> mapValue(rs, columns);
+    }
+
+    public static Stream<Map<String,Object>> stream(String sql, Connection connection,
+                                    Set<String> columns,
+                                   List<Object> params,
+                                   boolean fromDatasource) throws SQLException {
+        return stream(sql, connection, params, defaultMapper(columns), fromDatasource);
+    }
+
+    public static <R> Stream<R> stream(String sql, Connection connection,
+                                     List<Object> params,
+                                     ThrowingFunction<ResultSet, R, SQLException> mapper,
+                                    boolean fromDatasource) throws SQLException {
 
         WrappedCloseables wrappedCloseables = WrappedCloseables.EMPTY;
         PreparedStatement preparedStatement = null;
@@ -299,13 +327,13 @@ public class QueryRunner {
             wrappedCloseables = getWrappedCloseables(connection, fromDatasource, preparedStatement, resultSet);
             WrappedCloseables finalWrappedCloseables = wrappedCloseables;
             ResultSet finalResultSet = resultSet;
-            return StreamSupport.stream(new Spliterators.AbstractSpliterator<Map<String,Object>>(
+            return StreamSupport.stream(new Spliterators.AbstractSpliterator<R>(
                     Long.MAX_VALUE, Spliterator.ORDERED) {
                 @Override
-                public boolean tryAdvance(Consumer<? super Map<String,Object>> action) {
+                public boolean tryAdvance(Consumer<? super R> action) {
                     try {
                         if (finalResultSet.next()) {
-                            action.accept(mapValue(finalResultSet, columns));
+                            action.accept(mapper.apply(finalResultSet));
                             return true;
                         }
 
@@ -381,58 +409,6 @@ public class QueryRunner {
             return values;
         } finally {
             silentClose(rs);
-        }
-    }
-
-    public static <R> Stream<R> stream(String sql, DataSource dataSource, List<Object> params,
-                                       ThrowingFunction<ResultSet, R, SQLException> mapper, boolean fromDatasource)
-                                        throws SQLException{
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            return stream(sql, connection, params, mapper, fromDatasource);
-        } catch (SQLException ex) {
-            silentClose(connection);
-            throw ex;
-        }
-    }
-
-    public static <R> Stream<R> stream(String sql, Connection connection, List<Object> params,
-                                       ThrowingFunction<ResultSet, R, SQLException> mapper, boolean fromDatasource)
-                                        throws SQLException {
-        WrappedCloseables wrappedCloseables = WrappedCloseables.EMPTY;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            preparedStatement = connection.prepareStatement(sql);
-            initParams(preparedStatement, params);
-            resultSet = preparedStatement.executeQuery();
-
-            wrappedCloseables = getWrappedCloseables(connection, fromDatasource, preparedStatement, resultSet);
-            WrappedCloseables finalWrappedCloseables = wrappedCloseables;
-            ResultSet finalResultSet = resultSet;
-            return StreamSupport.stream(new Spliterators.AbstractSpliterator<R>(
-                    Long.MAX_VALUE, Spliterator.ORDERED) {
-                @Override
-                public boolean tryAdvance(Consumer<? super R> action) {
-                    try {
-                        if (finalResultSet.next()) {
-                            action.accept(mapper.apply(finalResultSet));
-                            return true;
-                        }
-
-                        finalWrappedCloseables.close();
-                        return false;
-                    } catch (SQLException ex) {
-                        finalWrappedCloseables.close();
-                        throw new SQLRuntimeException(ex);
-                    }
-                }
-            }, false).onClose(wrappedCloseables::close);
-        } catch (SQLException ex) {
-            wrappedCloseables.close();
-            silentClose(resultSet, preparedStatement);
-            throw ex;
         }
     }
 
