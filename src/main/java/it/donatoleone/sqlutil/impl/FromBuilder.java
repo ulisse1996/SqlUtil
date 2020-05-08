@@ -211,7 +211,8 @@ final class FromBuilder implements From {
         return this;
     }
 
-    private List<Object> getParams() {
+    @Override
+    public List<Object> getParams() {
         // Join
         List<Object> joinValues = this.joins.stream()
                 .map(Join::getParams)

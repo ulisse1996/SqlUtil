@@ -12,12 +12,12 @@ import java.util.stream.Stream;
 final class SelectBuilder implements Select {
 
     private final Set<Alias> aliases;
-    private final Set<String> columns;
+    private final List<String> columns;
     private boolean selectAll;
 
     SelectBuilder() {
         this.aliases = Collections.unmodifiableSet(Collections.emptySet());
-        this.columns = Collections.unmodifiableSet(Collections.emptySet());
+        this.columns = Collections.unmodifiableList(Collections.emptyList());
         selectAll = true;
     }
 
@@ -29,15 +29,13 @@ final class SelectBuilder implements Select {
                         )
                 )
         );
-        this.columns = Collections.unmodifiableSet(Collections.emptySet());
+        this.columns = Collections.unmodifiableList(Collections.emptyList());
     }
 
     SelectBuilder(String... columns) {
-        this.columns = Collections.unmodifiableSet(
-                new HashSet<>(
-                        Arrays.asList(
-                                Objects.requireNonNull(columns, MessageFactory.notNull("columns"))
-                        )
+        this.columns = Collections.unmodifiableList(
+                Arrays.asList(
+                        Objects.requireNonNull(columns, MessageFactory.notNull("columns"))
                 )
         );
         this.aliases = Collections.unmodifiableSet(Collections.emptySet());
@@ -51,16 +49,16 @@ final class SelectBuilder implements Select {
     }
 
     @Override
-    public Set<String> getColumns() {
+    public List<String> getColumns() {
         if (columns.isEmpty() && aliases.isEmpty()) {
-            return Collections.emptySet();
+            return Collections.emptyList();
         } else if (!columns.isEmpty()) {
             return this.columns;
         } else {
             return this.aliases
                     .stream()
                     .map(Alias::getAlias)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
         }
     }
 

@@ -50,4 +50,59 @@ public class InsertExecutingTest extends BaseDBTest {
             fail(ex);
         }
     }
+
+    @Test
+    public void shouldInsertRecordWithExpression() {
+        try (Connection connection = dataSource.getConnection()) {
+            SqlUtil.insertInto("TABLE2INSERT")
+                    .insert("COL1").withExpression("CURRENT_DATE")
+                    .execute(connection);
+
+            assertTrue(
+                    SqlUtil.select()
+                        .from("TABLE2INSERT")
+                        .readOptionalSingle(connection)
+                        .isPresent()
+            );
+
+            SqlUtil.insertInto("TABLE3INSERT")
+                    .insert("COL1").withExpression("CURRENT_DATE")
+                    .execute(dataSource);
+
+            assertTrue(
+                    SqlUtil.select()
+                            .from("TABLE3INSERT")
+                            .readOptionalSingle(dataSource)
+                            .isPresent()
+            );
+        } catch (Exception ex) {
+            fail(ex);
+        }
+    }
+
+    @Test
+    public void shouldCreateRecordWithSubQuery() {
+        try {
+            SqlUtil.insertInto("TABLE1INSERT")
+                    .insert("COL1").withValue("TEST4")
+                    .execute(dataSource);
+
+            SqlUtil.insertInto("TABLE4INSERT")
+                    .insert("COL1", "COL2").withResult(
+                            SqlUtil.select("COL1", "33")
+                                .from("TABLE1INSERT")
+                                .where("COL1").isEqualsTo("TEST4")
+            ).execute(dataSource);
+
+            assertTrue(
+                    SqlUtil.select()
+                        .from("TABLE1INSERT")
+                        .where("COL1").isEqualsTo("TEST4")
+                        .readOptionalSingle(dataSource)
+                        .isPresent()
+            );
+        } catch (Exception ex) {
+            fail(ex);
+        }
+    }
 }

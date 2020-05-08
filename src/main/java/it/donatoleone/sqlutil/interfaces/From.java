@@ -27,6 +27,9 @@ public interface From extends SqlQuery {
     From orderBy(Ordering ordering, String column);
     From orderBy(Ordering ordering, String... columns);
 
+    // Utility Method
+    List<Object> getParams();
+
     // Execute Methods
 
     Map<String,Object> readSingle(DataSource dataSource) throws SQLException;

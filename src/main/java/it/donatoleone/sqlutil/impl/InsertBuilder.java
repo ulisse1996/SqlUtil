@@ -1,8 +1,6 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.Insert;
-import it.donatoleone.sqlutil.interfaces.InsertingValue;
-import it.donatoleone.sqlutil.interfaces.SqlQuery;
+import it.donatoleone.sqlutil.interfaces.*;
 import it.donatoleone.sqlutil.util.MessageFactory;
 import it.donatoleone.sqlutil.util.QueryRunner;
 
@@ -12,12 +10,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 final class InsertBuilder implements Insert {
 
     private final String table;
-    private final List<InsertingValue> insertingValues;
+    private final List<Inserted> insertingValues;
 
     InsertBuilder(String table) {
         this.table = Objects.requireNonNull(table, MessageFactory.notNull(table));
@@ -32,11 +31,17 @@ final class InsertBuilder implements Insert {
     }
 
     @Override
+    public LimitedInsertingValue insert(String... columns) {
+        LimitedInsertingValue value = StatementFactory.buildInserting(this, columns);
+        this.insertingValues.add(value);
+        return value;
+    }
+
+    @Override
     public void execute(DataSource dataSource) throws SQLException {
         QueryRunner.executeInsert(
                 getSql(),
-                this.insertingValues.stream().map(InsertingValue::getValue)
-                    .filter(Objects::nonNull)
+                this.insertingValues.stream().flatMap(in -> in.getValue().stream())
                     .collect(Collectors.toList()),
                 dataSource
         );
@@ -46,26 +51,40 @@ final class InsertBuilder implements Insert {
     public void execute(Connection connection) throws SQLException {
         QueryRunner.executeInsert(
                 getSql(),
-                this.insertingValues.stream().map(InsertingValue::getValue)
-                        .filter(Objects::nonNull)
+                this.insertingValues.stream().flatMap(in -> in.getValue().stream())
                         .collect(Collectors.toList()),
                 connection
         );
     }
 
+    private boolean isSubQuery() {
+        return this.insertingValues.size() == 1
+                && this.insertingValues.get(0).isSelectInsert();
+    }
+
     @Override
     public String getSql() {
-        return String.format("INSERT INTO %s (%s) VALUES (%s)",
-                this.table,
-                this.insertingValues.stream().map(InsertingValue::getColumn).collect(Collectors.joining(",")),
-                this.insertingValues.stream().map(SqlQuery::getSql).collect(Collectors.joining(",")));
+        if (isSubQuery()) {
+            return getSql("INSERT INTO %s (%s) %s", SqlQuery::getSql);
+        }
+        return getSql("INSERT INTO %s (%s) VALUES (%s)", SqlQuery::getSql);
     }
 
     @Override
     public String getDebugSql() {
+        if (isSubQuery()) {
+            return getSql("INSERT INTO %s (%s) %s", SqlQuery::getDebugSql);
+        }
         return String.format("INSERT INTO %s (%s) VALUES (%s)",
                 this.table,
-                this.insertingValues.stream().map(InsertingValue::getColumn).collect(Collectors.joining(",")),
+                this.insertingValues.stream().flatMap(in -> in.getColumns().stream()).collect(Collectors.joining(",")),
                 this.insertingValues.stream().map(SqlQuery::getDebugSql).collect(Collectors.joining(",")));
+    }
+
+    private String getSql(String format, Function<SqlQuery, String> function) {
+        return String.format(format,
+                this.table,
+                this.insertingValues.stream().flatMap(in -> in.getColumns().stream()).collect(Collectors.joining(",")),
+                this.insertingValues.stream().map(function).collect(Collectors.joining(",")));
     }
 }

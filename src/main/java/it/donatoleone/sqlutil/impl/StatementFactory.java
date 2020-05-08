@@ -70,4 +70,8 @@ final class StatementFactory {
     static InsertingValue buildInserting(String column, Insert parent) {
         return new InsertingBuilder(column, parent);
     }
+
+    static LimitedInsertingValue buildInserting(Insert parent, String[] columns) {
+        return new InsertingBuilder(columns, parent);
+    }
 }

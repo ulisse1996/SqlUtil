@@ -1,23 +1,30 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.From;
-import it.donatoleone.sqlutil.interfaces.Insert;
-import it.donatoleone.sqlutil.interfaces.InsertingValue;
+import it.donatoleone.sqlutil.interfaces.*;
 import it.donatoleone.sqlutil.util.MessageFactory;
 import it.donatoleone.sqlutil.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
-final class InsertingBuilder implements InsertingValue {
+final class InsertingBuilder implements InsertingValue, LimitedInsertingValue {
 
     private final Insert parent;
-    private final String column;
+    private final List<String> columns;
     private Object value;
     private String expression;
     private From query;
 
     InsertingBuilder(String column, Insert parent) {
-        this.column = Objects.requireNonNull(column, MessageFactory.notNull("column"));
+        this.columns = Collections.singletonList(
+                Objects.requireNonNull(column, MessageFactory.notNull("column")));
+        this.parent = parent;
+    }
+
+    InsertingBuilder(String[] columns, Insert parent) {
+        this.columns = Arrays.asList(columns);
         this.parent = parent;
     }
 
@@ -34,19 +41,27 @@ final class InsertingBuilder implements InsertingValue {
     }
 
     @Override
-    public Insert withResult(From query) {
+    public LimitedInsert withResult(From query) {
         this.query = Objects.requireNonNull(query, MessageFactory.notNull("subQuery"));
         return this.parent;
     }
 
     @Override
-    public String getColumn() {
-        return this.column;
+    public List<String> getColumns() {
+        return this.columns;
     }
 
     @Override
-    public Object getValue() {
-        return value;
+    public List<Object> getValue() {
+        if (query != null) {
+            return query.getParams();
+        }
+        return value != null ? Collections.singletonList(value) : Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSelectInsert() {
+        return this.query != null;
     }
 
     @Override

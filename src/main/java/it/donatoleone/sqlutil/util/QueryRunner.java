@@ -19,14 +19,14 @@ public class QueryRunner {
 
     private QueryRunner() {}
 
-    public static Map<String,Object> select(String sql, DataSource datasource, Set<String> columns, List<Object> params)
+    public static Map<String,Object> select(String sql, DataSource datasource, List<String> columns, List<Object> params)
             throws SQLException {
         try (Connection connection = datasource.getConnection()) {
             return select(sql, connection, columns, params);
         }
     }
 
-    public static Map<String,Object> select(String sql, Connection connection, Set<String> columns, List<Object> params)
+    public static Map<String,Object> select(String sql, Connection connection, List<String> columns, List<Object> params)
             throws SQLException {
         ResultSet rs = null;
         try (PreparedStatement pr = connection.prepareStatement(sql)) {
@@ -44,14 +44,14 @@ public class QueryRunner {
         }
     }
 
-    public static List<Map<String,Object>> selectAll(String sql, DataSource datasource, Set<String> columns, List<Object> params)
+    public static List<Map<String,Object>> selectAll(String sql, DataSource datasource, List<String> columns, List<Object> params)
             throws SQLException {
         try (Connection connection = datasource.getConnection()) {
             return selectAll(sql, connection, columns, params);
         }
     }
 
-    public static List<Map<String,Object>> selectAll(String sql, Connection connection, Set<String> columns, List<Object> params)
+    public static List<Map<String,Object>> selectAll(String sql, Connection connection, List<String> columns, List<Object> params)
             throws SQLException {
         ResultSet rs = null;
         List<Map<String,Object>> values = new ArrayList<>();
@@ -69,12 +69,12 @@ public class QueryRunner {
         }
     }
 
-    public static Optional<Map<String,Object>> optSelect(String sql, DataSource dataSource, Set<String> column,
+    public static Optional<Map<String,Object>> optSelect(String sql, DataSource dataSource, List<String> column,
                                                          List<Object> params) throws SQLException {
         return fromMap(select(sql, dataSource, column, params));
     }
 
-    public static Optional<Map<String,Object>> optSelect(String sql, Connection connection, Set<String> column,
+    public static Optional<Map<String,Object>> optSelect(String sql, Connection connection, List<String> column,
                                                          List<Object> params) throws SQLException {
         return fromMap(select(sql, connection, column, params));
     }
@@ -87,7 +87,7 @@ public class QueryRunner {
         return Optional.of(values);
     }
 
-    private static Map<String,Object> mapValue(ResultSet rs, Set<String> columns) throws SQLException {
+    private static Map<String,Object> mapValue(ResultSet rs, List<String> columns) throws SQLException {
         if (columns.isEmpty()) {
             return mapAllValue(rs);
         } else {
@@ -273,7 +273,7 @@ public class QueryRunner {
                 });
     }
 
-    public static Stream<Map<String, Object>> stream(String sql, DataSource dataSource, Set<String> columns,
+    public static Stream<Map<String, Object>> stream(String sql, DataSource dataSource, List<String> columns,
                                                      List<Object> params) throws SQLException {
         Connection connection = null;
         try {
@@ -300,12 +300,12 @@ public class QueryRunner {
         }
     }
 
-    private static ThrowingFunction<ResultSet, Map<String,Object>, SQLException> defaultMapper(Set<String> columns) {
+    private static ThrowingFunction<ResultSet, Map<String,Object>, SQLException> defaultMapper(List<String> columns) {
         return rs -> mapValue(rs, columns);
     }
 
     public static Stream<Map<String,Object>> stream(String sql, Connection connection,
-                                    Set<String> columns,
+                                    List<String> columns,
                                    List<Object> params,
                                    boolean fromDatasource) throws SQLException {
         return stream(sql, connection, params, defaultMapper(columns), fromDatasource);

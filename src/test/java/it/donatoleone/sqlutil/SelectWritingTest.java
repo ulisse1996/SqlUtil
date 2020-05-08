@@ -30,7 +30,7 @@ public class SelectWritingTest {
     private static final String COMPOUND_JOIN = "SELECT * FROM TABLE1 JOIN TABLE2 ON (COL3 = ? OR COL3 = ?)";
     private static final String COMPOUND_JOIN_DEBUG = "SELECT * FROM TABLE1 JOIN TABLE2 ON (COL3 = 3 OR COL3 = 4)";
     private static final String COMPOUND_JOIN_SINGLE = "SELECT * FROM TABLE1 JOIN TABLE2 ON COL3 = ?";
-    private static final String COLUMN_SELECT = "SELECT COL2 , COL1 FROM TABLE";
+    private static final String COLUMN_SELECT = "SELECT COL1 , COL2 FROM TABLE";
     private static final String ALIAS_SELECT = "SELECT COL1 AS COLUMN1 , COL2 FROM TABLE";
     private static final String WHERE_EQUALS = ALIAS_SELECT + " WHERE COL3 = ?";
     private static final String WHERE_EQUALS_TWO = ALIAS_SELECT + " WHERE COL3 = ? AND COL4 = ?";
@@ -59,10 +59,10 @@ public class SelectWritingTest {
     private static final String WHERE_EXISTS_DEBUG = ALIAS_SELECT + " WHERE EXISTS (SELECT AL2 FROM TAB1 WHERE AL2 = 2)";
     private static final String WHERE_EXISTS_OR = ALIAS_SELECT + " WHERE COL3 = ? OR EXISTS (SELECT AL2 FROM TAB1 WHERE AL2 = ?)";
     private static final String WHERE_EQUALS_OR = ALIAS_SELECT + " WHERE COL3 = '3' OR COL4 = 4";
-    private static final String COMPOUND_WHERE_1 = "SELECT COL2 , COL1 FROM TABLE WHERE (COL3 = ? OR COL4 = ?)";
-    private static final String COMPOUND_WHERE_DEBUG_1 = "SELECT COL2 , COL1 FROM TABLE WHERE (COL3 = 3 OR COL4 = 4)";
-    private static final String COMPOUND_WHERE_2 = "SELECT COL2 , COL1 FROM TABLE WHERE COL3 = ? OR (COL3 = ? OR COL3 = ?)";
-    private static final String COMPOUND_WHERE_3 = "SELECT COL2 , COL1 FROM TABLE WHERE COL3 = ? " +
+    private static final String COMPOUND_WHERE_1 = "SELECT COL1 , COL2 FROM TABLE WHERE (COL3 = ? OR COL4 = ?)";
+    private static final String COMPOUND_WHERE_DEBUG_1 = "SELECT COL1 , COL2 FROM TABLE WHERE (COL3 = 3 OR COL4 = 4)";
+    private static final String COMPOUND_WHERE_2 = "SELECT COL1 , COL2 FROM TABLE WHERE COL3 = ? OR (COL3 = ? OR COL3 = ?)";
+    private static final String COMPOUND_WHERE_3 = "SELECT COL1 , COL2 FROM TABLE WHERE COL3 = ? " +
             "OR (COL1 = ? AND COL2 = ?) AND (COL3 = ? OR COL4 = ?)";
     private static final String JOIN_COMPARISON = "SELECT * FROM TABLE JOIN TABLE1 ON COL1 = COL4";
     private static final String SIMPLE_ORDER = "SELECT * FROM TABLE ORDER BY COL1 DESC";

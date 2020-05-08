@@ -1,9 +1,9 @@
 package it.donatoleone.sqlutil.interfaces;
 
-import java.util.Set;
+import java.util.List;
 
 public interface Select extends SqlQuery {
 
     From from(String table);
-    Set<String> getColumns();
+    List<String> getColumns();
 }
