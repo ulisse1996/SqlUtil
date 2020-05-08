@@ -10,4 +10,10 @@ public class SQLRuntimeException extends RuntimeException {
     public SQLRuntimeException(SQLException ex) {
         super(ex);
     }
+
+    public SQLRuntimeException(Throwable ex) {
+        if (ex instanceof SQLRuntimeException) {
+            this.initCause(ex.getCause());
+        }
+    }
 }

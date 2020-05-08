@@ -339,7 +339,7 @@ public class QueryRunner {
 
                         finalWrappedCloseables.close();
                         return false;
-                    } catch (SQLException ex) {
+                    } catch (SQLException | SQLRuntimeException ex) {
                         finalWrappedCloseables.close();
                         throw new SQLRuntimeException(ex);
                     }

@@ -2,14 +2,17 @@ package it.donatoleone.sqlutil;
 
 import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.enums.Ordering;
+import it.donatoleone.sqlutil.exceptions.SQLRuntimeException;
 import it.donatoleone.sqlutil.impl.AliasFactory;
 import it.donatoleone.sqlutil.impl.OnFactory;
 import it.donatoleone.sqlutil.impl.SqlUtil;
 import it.donatoleone.sqlutil.impl.WhereFactory;
 import it.donatoleone.sqlutil.interfaces.Alias;
 import it.donatoleone.sqlutil.interfaces.ThrowingFunction;
+import it.donatoleone.sqlutil.util.Pair;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
@@ -19,6 +22,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class SelectExecutingTest extends BaseDBTest {
 
@@ -418,6 +424,108 @@ public class SelectExecutingTest extends BaseDBTest {
             assertEquals(objects, objectList);
             assertEquals(objects, objectList2);
 
+        } catch (Exception ex) {
+            fail(ex);
+        }
+    }
+
+    @Test
+    public void shouldHandleAndThrowSQLException() {
+        try {
+
+            ResultSet rs = mock(ResultSet.class);
+            PreparedStatement pr = mock(PreparedStatement.class);
+            Connection connection = mock(Connection.class);
+            ResultSetMetaData metaData = mock(ResultSetMetaData.class);
+
+            when(connection.prepareStatement(anyString())).thenReturn(pr);
+            when(pr.executeQuery()).thenReturn(rs);
+            when(rs.next()).thenReturn(true);
+            when(rs.getMetaData()).thenReturn(metaData);
+            when(metaData.getColumnCount()).thenReturn(30);
+            when(metaData.getColumnName(1)).thenThrow(SQLException.class);
+
+            assertThrows(SQLException.class,
+                    () -> SqlUtil.select("COL1", "COL2")
+                    .from("TAB1")
+                    .readSingle(connection));
+
+            metaData = mock(ResultSetMetaData.class);
+            when(rs.getMetaData()).thenReturn(metaData);
+            when(metaData.getColumnCount()).thenReturn(30);
+            when(metaData.getColumnName(1)).thenReturn("NAME");
+            when(metaData.getColumnLabel(1)).thenReturn("NAME");
+            when(metaData.getColumnType(1)).thenThrow(SQLException.class);
+
+            assertThrows(SQLException.class,
+                    () -> SqlUtil.select("COL1", "COL2")
+                            .from("TAB1")
+                            .readSingle(connection));
+
+            assertThrows(SQLException.class,
+                    () -> SqlUtil.select("COL1", "COL2")
+                            .from("TAB1")
+                            .readAll(connection));
+
+            DataSource dataSource = mock(DataSource.class);
+            when(dataSource.getConnection()).thenReturn(connection);
+
+            assertThrows(SQLRuntimeException.class,
+                    () -> SqlUtil.select("COL1", "COL2")
+                            .from("TAB1")
+                            .stream(dataSource)
+                            .forEach(System.out::print));
+
+            when(connection.prepareStatement(anyString())).thenThrow(SQLException.class);
+
+            assertThrows(SQLException.class,
+                    () -> SqlUtil.select("COL1", "COL2")
+                            .from("TAB1")
+                            .stream(dataSource)
+                            .forEach(System.out::print));
+
+            assertThrows(SQLException.class,
+                    () -> SqlUtil.select("COL1", "COL2")
+                            .from("TAB1")
+                            .stream(MAPPER, dataSource)
+                            .forEach(System.out::print));
+
+            Connection connection2 = mock(Connection.class);
+            pr = mock(PreparedStatement.class);
+            when(connection2.prepareStatement(anyString())).thenReturn(pr);
+            doThrow(SQLException.class).when(pr).setString(anyInt(),anyString());
+
+            assertThrows(SQLException.class,
+                    () -> SqlUtil.select("COL1", "COL2")
+                            .from("TAB1")
+                            .where("COL1").isEqualsTo("2")
+                            .readAll(connection2));
+
+        } catch (Exception ex) {
+            fail(ex);
+        }
+    }
+
+    @Test
+    public void shouldDate() {
+        try {
+            Pair<DataSource, ResultSet> mocked = mockResult();
+            ResultSetMetaData metaData = mock(ResultSetMetaData.class);
+            when(mocked.getValue().next()).thenReturn(true);
+            when(mocked.getValue().getMetaData()).thenReturn(metaData);
+            when(metaData.getColumnCount()).thenReturn(1);
+            when(metaData.getColumnType(1)).thenReturn(Types.DATE);
+            when(metaData.getColumnLabel(1)).thenReturn("COL1");
+            when(metaData.getColumnName(1)).thenReturn("COL1");
+            when(mocked.getValue().getDate("COL1")).thenReturn(new Date(System.currentTimeMillis()));
+
+            Map<String, Object> values = SqlUtil.select("COL1")
+                    .from("TAB1")
+                    .readSingle(mocked.getKey());
+            assertAll(
+                    () -> assertEquals(1, values.size()),
+                    () -> assertTrue(values.get("COL1") instanceof Date)
+            );
         } catch (Exception ex) {
             fail(ex);
         }

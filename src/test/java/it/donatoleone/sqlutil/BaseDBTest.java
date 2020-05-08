@@ -1,13 +1,18 @@
 package it.donatoleone.sqlutil;
 
+import it.donatoleone.sqlutil.util.Pair;
 import org.hsqldb.jdbc.JDBCDataSourceFactory;
 import org.junit.jupiter.api.BeforeAll;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import javax.sql.DataSource;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.function.Predicate;
@@ -42,5 +47,16 @@ public abstract class BaseDBTest {
                         throw new RuntimeException(ex);
                     }
                 });
+    }
+
+    protected Pair<DataSource, ResultSet> mockResult() throws SQLException {
+        DataSource dataSource = Mockito.mock(DataSource.class);
+        Connection connection = Mockito.mock(Connection.class);
+        PreparedStatement preparedStatement = Mockito.mock(PreparedStatement.class);
+        ResultSet resultSet = Mockito.mock(ResultSet.class);
+        Mockito.when(dataSource.getConnection()).thenReturn(connection);
+        Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStatement);
+        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        return Pair.immutable(dataSource, resultSet);
     }
 }

@@ -3,14 +3,24 @@ package it.donatoleone.sqlutil;
 import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.enums.LikeMatcher;
 import it.donatoleone.sqlutil.enums.Ordering;
-import it.donatoleone.sqlutil.impl.*;
+import it.donatoleone.sqlutil.impl.AliasFactory;
+import it.donatoleone.sqlutil.impl.OnFactory;
+import it.donatoleone.sqlutil.impl.SqlUtil;
+import it.donatoleone.sqlutil.impl.WhereFactory;
 import it.donatoleone.sqlutil.interfaces.From;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
+@RunWith(PowerMockRunner.class)
 public class SelectWritingTest {
 
     private static final String SIMPLE_SELECT = "SELECT * FROM TABLE";
@@ -515,5 +525,26 @@ public class SelectWritingTest {
                     .orderBy(Ordering.ASC, "COL3")
                     .getSql()
         );
+    }
+
+    @PrepareForTest(LikeMatcher.class)
+    @org.junit.Test
+    public void shouldThrowExceptionForDefaultSwitch() {
+        LikeMatcher[] origValues = LikeMatcher.values();
+
+        LikeMatcher invalidValue = PowerMockito.mock(LikeMatcher.class);
+        Whitebox.setInternalState(invalidValue, "name", "-");
+        Whitebox.setInternalState(invalidValue, "ordinal", origValues.length);
+        LikeMatcher[] newValues = Arrays.copyOf(origValues, origValues.length+1);
+        newValues[newValues.length-1] = invalidValue;
+
+        PowerMockito.mockStatic(LikeMatcher.class);
+        PowerMockito.when(LikeMatcher.values()).thenReturn(newValues);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> SqlUtil.select()
+                        .from("TABLE")
+                        .where("COL1").like("VAL", invalidValue)
+                        .getDebugSql());
     }
 }

@@ -99,10 +99,23 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
 
     @Override
     public N like(String value, LikeMatcher matcher) {
-        this.value = value;
+        this.value = asLike(value, matcher);
         this.operation = OperationType.LIKE;
         this.matcher = matcher;
         return getReturn();
+    }
+
+    private String asLike(String value, LikeMatcher matcher) {
+        switch (matcher) {
+
+            case FULL_MATCH:
+                return "%"+value+"%";
+            case START_MATCH:
+                return "%"+value;
+            case END_MATCH:
+                return value+"%";
+            default: throw new IllegalArgumentException("Can't find likeMather match");
+        }
     }
 
     protected List<Object> getParamsList() {
@@ -175,15 +188,7 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
 
     private String likeMatcher(boolean debug) {
         if (debug) {
-            switch (this.matcher) {
-                case FULL_MATCH:
-                    return String.format(LIKE_FORMAT, decodeWhereType(), this.column, "%"+this.value+"%");
-                case START_MATCH:
-                    return String.format(LIKE_FORMAT, decodeWhereType(), this.column, "%"+this.value);
-                case END_MATCH:
-                    return String.format(LIKE_FORMAT, decodeWhereType(), this.column, this.value+"%");
-                default: throw new IllegalArgumentException("Can't find Matcher Type");
-            }
+            return String.format(LIKE_FORMAT, decodeWhereType(), this.column, this.value);
         } else {
             switch (this.matcher) {
                 case FULL_MATCH:
