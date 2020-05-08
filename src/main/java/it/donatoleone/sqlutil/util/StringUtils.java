@@ -7,6 +7,18 @@ public class StringUtils {
 
     private StringUtils() {}
 
+    public static String asString(Object value) {
+        if (value instanceof Number) {
+            return StringUtils.toString((Number) value);
+        }
+
+        if (value instanceof String) {
+            return String.format("'%s'", value);
+        }
+
+        return value.toString();
+    }
+
     public static String toString(Number val) {
         if (Double.class.isAssignableFrom(val.getClass())) {
             return String.valueOf(val.doubleValue());

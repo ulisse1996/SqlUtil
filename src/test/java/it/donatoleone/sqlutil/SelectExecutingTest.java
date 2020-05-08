@@ -7,22 +7,22 @@ import it.donatoleone.sqlutil.impl.AliasFactory;
 import it.donatoleone.sqlutil.impl.OnFactory;
 import it.donatoleone.sqlutil.impl.SqlUtil;
 import it.donatoleone.sqlutil.impl.WhereFactory;
-import it.donatoleone.sqlutil.interfaces.Alias;
 import it.donatoleone.sqlutil.interfaces.ThrowingFunction;
 import it.donatoleone.sqlutil.util.Pair;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.*;
 import java.sql.Date;
+import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -32,6 +32,11 @@ public class SelectExecutingTest extends BaseDBTest {
         new CustomObject(rs.getLong("COL1"),
                 rs.getLong("COL2"),
                 rs.getString("COL3"));
+
+    @BeforeAll
+    private static void init() throws Exception {
+        init("/selectTest.sql");
+    }
 
     @Test
     public void shouldReturnOneCompleteRecord() {

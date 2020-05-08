@@ -62,4 +62,12 @@ final class StatementFactory {
     static On<LimitedOn> buildLimitedOrOn(String column) {
         return new LimitedOnBuilder(column, true);
     }
+
+    static Insert buildInsert(String table) {
+        return new InsertBuilder(table);
+    }
+
+    static InsertingValue buildInserting(String column, Insert parent) {
+        return new InsertingBuilder(column, parent);
+    }
 }

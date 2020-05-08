@@ -125,18 +125,6 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
         return this.values;
     }
 
-    private String asString(Object value) {
-        if (value instanceof Number) {
-            return StringUtils.toString((Number) value);
-        }
-
-        if (value instanceof String) {
-            return String.format("'%s'", value);
-        }
-
-        return value.toString();
-    }
-
     @Override
     public String getSql() {
         if (operation.isSimple()) {
@@ -150,7 +138,7 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
     public String getDebugSql() {
         if (operation.isSimple()) {
             return String.format("%s %s %s %s", decodeWhereType(), this.column, operation.stringValue(),
-                    asString(this.value));
+                    StringUtils.asString(this.value));
         }
 
         return getOperationMapping(true);
@@ -165,8 +153,8 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
 
             case BETWEEN:
                 if (debug) {
-                    return String.format("%s %s BETWEEN %s AND %s", decodeWhereType(), this.column, asString(this.values.get(0)),
-                            asString(this.values.get(1)));
+                    return String.format("%s %s BETWEEN %s AND %s", decodeWhereType(), this.column, StringUtils.asString(this.values.get(0)),
+                            StringUtils.asString(this.values.get(1)));
                 } else {
                     return String.format("%s %s BETWEEN ? AND ?", decodeWhereType(), this.column);
                 }
@@ -174,7 +162,7 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
                 if (debug) {
                     return String.format("%s %s IN (%s)", decodeWhereType(), this.column,
                             this.values.stream()
-                                    .map(this::asString)
+                                    .map(StringUtils::asString)
                                     .collect(Collectors.joining(",")));
                 } else {
                     return String.format("%s %s IN (%s)", decodeWhereType(), this.column, String.join(",",

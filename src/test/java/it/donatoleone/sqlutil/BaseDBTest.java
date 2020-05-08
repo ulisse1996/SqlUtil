@@ -21,20 +21,19 @@ public abstract class BaseDBTest {
 
     protected static DataSource dataSource;
 
-    @BeforeAll
-    public static void init() throws Exception {
+    public static void init(String sqlFile) throws Exception {
         Class.forName("org.hsqldb.jdbc.JDBCDriver");
         Properties prop = new Properties();
         prop.put("url", "jdbc:hsqldb:mem:test;sql.syntax_ora=true");
         prop.put("user", "sa");
         prop.put("password", "");
         dataSource = JDBCDataSourceFactory.createDataSource(prop);
-        initDb();
+        initDb(sqlFile);
     }
 
-    private static void initDb() throws Exception {
+    private static void initDb(String sqlFile) throws Exception {
         String sql = String.join("", Files.readAllLines(
-                Paths.get(BaseDBTest.class.getResource("/test.sql").toURI())));
+                Paths.get(BaseDBTest.class.getResource(sqlFile).toURI())));
         Arrays.stream(sql.split(";"))
                 .map(String::trim)
                 .filter(((Predicate<String>)String::isEmpty).negate())

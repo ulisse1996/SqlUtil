@@ -1,6 +1,7 @@
 package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.interfaces.Alias;
+import it.donatoleone.sqlutil.interfaces.Insert;
 import it.donatoleone.sqlutil.interfaces.Select;
 
 public final class SqlUtil {
@@ -17,5 +18,9 @@ public final class SqlUtil {
 
     public static Select select(Alias... aliases) {
         return StatementFactory.buildSelect(aliases);
+    }
+
+    public static Insert insertInto(String table) {
+        return StatementFactory.buildInsert(table);
     }
 }
