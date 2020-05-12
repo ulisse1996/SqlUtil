@@ -39,7 +39,7 @@ final class InsertBuilder implements Insert {
 
     @Override
     public void execute(DataSource dataSource) throws SQLException {
-        QueryRunner.executeInsert(
+        QueryRunner.execute(
                 getSql(),
                 this.insertingValues.stream().flatMap(in -> in.getValue().stream())
                     .collect(Collectors.toList()),
@@ -49,7 +49,7 @@ final class InsertBuilder implements Insert {
 
     @Override
     public void execute(Connection connection) throws SQLException {
-        QueryRunner.executeInsert(
+        QueryRunner.execute(
                 getSql(),
                 this.insertingValues.stream().flatMap(in -> in.getValue().stream())
                         .collect(Collectors.toList()),

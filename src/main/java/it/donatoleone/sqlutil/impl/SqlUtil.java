@@ -3,6 +3,7 @@ package it.donatoleone.sqlutil.impl;
 import it.donatoleone.sqlutil.interfaces.Alias;
 import it.donatoleone.sqlutil.interfaces.Insert;
 import it.donatoleone.sqlutil.interfaces.Select;
+import it.donatoleone.sqlutil.interfaces.Update;
 
 public final class SqlUtil {
 
@@ -22,5 +23,9 @@ public final class SqlUtil {
 
     public static Insert insertInto(String table) {
         return StatementFactory.buildInsert(table);
+    }
+
+    public static Update update(String table) {
+        return StatementFactory.buildUpdate(table);
     }
 }

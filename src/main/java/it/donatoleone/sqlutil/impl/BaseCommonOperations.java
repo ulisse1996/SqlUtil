@@ -23,7 +23,6 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
 
     private static final String LIKE_FORMAT = "%s %s LIKE '%s'";
     protected String column;
-    protected From from;
     protected Object value;
     protected List<Object> values;
     protected OperationType operation;

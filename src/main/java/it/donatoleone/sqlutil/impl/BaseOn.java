@@ -19,9 +19,8 @@ abstract class BaseOn<N> extends BaseCommonOperations<N> implements On<N> {
     private boolean columnComparison;
     private String comparedColumn;
 
-    BaseOn(String column, From from) {
+    BaseOn(String column) {
         this.column = column;
-        this.from = from;
     }
 
     BaseOn(String column, boolean or) {

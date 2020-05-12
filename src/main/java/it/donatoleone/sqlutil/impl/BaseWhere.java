@@ -16,11 +16,6 @@ abstract class BaseWhere<N> extends BaseCommonOperations<N> implements Where<N> 
 
     protected From subQuery;
 
-    BaseWhere(String column, From from, boolean or) {
-        this(column, or);
-        this.from = from;
-    }
-
     BaseWhere(String column, boolean or) {
         this.column = Objects.requireNonNull(column, MessageFactory.notNull("column"));
         this.or = or;

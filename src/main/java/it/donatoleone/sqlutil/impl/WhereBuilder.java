@@ -1,22 +1,24 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.From;
-
 import java.util.List;
 
-final class WhereBuilder extends BaseWhere<From> {
+final class WhereBuilder<T> extends BaseWhere<T> {
 
-    WhereBuilder(String column, From from, boolean or) {
-        super(column, from, or);
+    private final T parent;
+
+    WhereBuilder(String column, T parent, boolean or) {
+        super(column, or);
+        this.parent = parent;
     }
 
-    WhereBuilder(From from, boolean or) {
-        super("", from, or);
+    WhereBuilder(T parent, boolean or) {
+        super("", or);
+        this.parent = parent;
     }
 
     @Override
-    From getReturn() {
-        return this.from;
+    T getReturn() {
+        return this.parent;
     }
 
     @Override

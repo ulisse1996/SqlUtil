@@ -96,7 +96,7 @@ public class InsertExecutingTest extends BaseDBTest {
 
             assertTrue(
                     SqlUtil.select()
-                        .from("TABLE1INSERT")
+                        .from("TABLE4INSERT")
                         .where("COL1").isEqualsTo("TEST4")
                         .readOptionalSingle(dataSource)
                         .isPresent()

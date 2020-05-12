@@ -23,20 +23,20 @@ final class StatementFactory {
         return new FromBuilder(table, select);
     }
 
-    static Where<From> buildWhere(String column, From from) {
-        return new WhereBuilder(column, from, false);
+    static <T> Where<T> buildWhere(String column, T parent) {
+        return new WhereBuilder<>(column, parent, false);
     }
 
-    static Where<From> buildWhere(From from) {
-        return new WhereBuilder(from, false);
+    static <T> Where<T> buildWhere(T parent) {
+        return new WhereBuilder<>(parent, false);
     }
 
-    static Where<From> buildOrWhere(From from) {
-        return new WhereBuilder(from, true);
+    static <T> Where<T> buildOrWhere(T parent) {
+        return new WhereBuilder<>(parent, true);
     }
 
-    static Where<From> buildOrWhere(String column, From from) {
-        return new WhereBuilder(column, from, true);
+    static <T> Where<T> buildOrWhere(String column, T parent) {
+        return new WhereBuilder<>(column, parent, true);
     }
 
     static Where<LimitedWhere> buildLimitedWhere(String column) {
@@ -73,5 +73,13 @@ final class StatementFactory {
 
     static LimitedInsertingValue buildInserting(Insert parent, String[] columns) {
         return new InsertingBuilder(columns, parent);
+    }
+
+    static Update buildUpdate(String table) {
+        return new UpdateBuilder(table);
+    }
+
+    static Setter buildSetter(String column, Update parent) {
+        return new SetterBuilder(column, parent);
     }
 }

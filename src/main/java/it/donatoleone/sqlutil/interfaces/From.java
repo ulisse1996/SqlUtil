@@ -12,17 +12,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface From extends SqlQuery {
+public interface From extends SqlQuery, WhereFilter<From> {
 
     // Query Methods
-
-    Where<From> where(String column);
-    From whereExists(From subQuery);
-    From orWhereExists(From subQuery);
     From withId(String tableId);
-    Where<From> orWhere(String column);
-    From where(CompoundWhere where);
-    From orWhere(CompoundWhere where);
     Join join(JoinType joinType, String table);
     From orderBy(Ordering ordering, String column);
     From orderBy(Ordering ordering, String... columns);

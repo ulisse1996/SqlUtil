@@ -423,13 +423,13 @@ public class QueryRunner {
         return wrappedCloseables;
     }
 
-    public static void executeInsert(String sql, List<Object> params, DataSource dataSource) throws SQLException {
+    public static void execute(String sql, List<Object> params, DataSource dataSource) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            executeInsert(sql, params, connection);
+            execute(sql, params, connection);
         }
     }
 
-    public static void executeInsert(String sql, List<Object> params, Connection connection) throws SQLException {
+    public static void execute(String sql, List<Object> params, Connection connection) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             initParams(preparedStatement, params);
             preparedStatement.executeUpdate();
