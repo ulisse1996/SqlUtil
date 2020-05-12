@@ -1,6 +1,5 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.From;
 import it.donatoleone.sqlutil.interfaces.On;
 
 import java.util.Collections;
