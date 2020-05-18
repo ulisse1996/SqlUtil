@@ -1,9 +1,10 @@
 package it.donatoleone.sqlutil.enums;
 
+import it.donatoleone.sqlutil.interfaces.select.Join;
 import it.donatoleone.sqlutil.util.StringValue;
 
 /**
- * Constants for Join Type used in {@link it.donatoleone.sqlutil.interfaces.Join}
+ * Constants for Join Type used in {@link Join}
  */
 public enum JoinType implements StringValue {
 

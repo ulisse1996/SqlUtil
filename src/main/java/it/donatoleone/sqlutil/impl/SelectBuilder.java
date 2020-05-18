@@ -1,8 +1,8 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.Alias;
-import it.donatoleone.sqlutil.interfaces.From;
-import it.donatoleone.sqlutil.interfaces.Select;
+import it.donatoleone.sqlutil.interfaces.select.Alias;
+import it.donatoleone.sqlutil.interfaces.select.From;
+import it.donatoleone.sqlutil.interfaces.select.Select;
 import it.donatoleone.sqlutil.util.MessageFactory;
 
 import java.util.*;

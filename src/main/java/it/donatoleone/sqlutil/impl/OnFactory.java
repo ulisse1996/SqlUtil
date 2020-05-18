@@ -1,8 +1,8 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.CompoundOn;
-import it.donatoleone.sqlutil.interfaces.LimitedOn;
-import it.donatoleone.sqlutil.interfaces.On;
+import it.donatoleone.sqlutil.interfaces.select.CompoundOn;
+import it.donatoleone.sqlutil.interfaces.select.LimitedOn;
+import it.donatoleone.sqlutil.interfaces.select.On;
 
 public final class OnFactory {
 

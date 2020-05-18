@@ -1,9 +1,10 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.Alias;
-import it.donatoleone.sqlutil.interfaces.Insert;
-import it.donatoleone.sqlutil.interfaces.Select;
-import it.donatoleone.sqlutil.interfaces.Update;
+import it.donatoleone.sqlutil.interfaces.create.CreateTable;
+import it.donatoleone.sqlutil.interfaces.insert.Insert;
+import it.donatoleone.sqlutil.interfaces.select.Alias;
+import it.donatoleone.sqlutil.interfaces.select.Select;
+import it.donatoleone.sqlutil.interfaces.update.Update;
 
 public final class SqlUtil {
 
@@ -27,5 +28,9 @@ public final class SqlUtil {
 
     public static Update update(String table) {
         return StatementFactory.buildUpdate(table);
+    }
+
+    public static CreateTable createTable(String table) {
+        return StatementFactory.buildCreateTable(table);
     }
 }

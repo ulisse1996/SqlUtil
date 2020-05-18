@@ -1,7 +1,8 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.CompoundWhere;
-import it.donatoleone.sqlutil.interfaces.LimitedWhere;
+import it.donatoleone.sqlutil.interfaces.common.CompoundWhere;
+import it.donatoleone.sqlutil.interfaces.common.LimitedWhere;
+import it.donatoleone.sqlutil.interfaces.common.Where;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Create a {@link CompoundWhere} that group a set of {@link it.donatoleone.sqlutil.interfaces.Where} cause
+ * Create a {@link CompoundWhere} that group a set of {@link Where} cause
  */
 final class CompoundWhereBuilder implements CompoundWhere {
 

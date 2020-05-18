@@ -1,14 +1,15 @@
 package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.enums.OperationType;
-import it.donatoleone.sqlutil.interfaces.From;
-import it.donatoleone.sqlutil.interfaces.Where;
+import it.donatoleone.sqlutil.interfaces.common.CommonOperations;
+import it.donatoleone.sqlutil.interfaces.select.From;
+import it.donatoleone.sqlutil.interfaces.common.Where;
 import it.donatoleone.sqlutil.util.MessageFactory;
 
 import java.util.Objects;
 
 /**
- * Extended Implementation of {@link it.donatoleone.sqlutil.interfaces.CommonOperations} used
+ * Extended Implementation of {@link CommonOperations} used
  * on {@link Where} cause
  * @param <N>
  */

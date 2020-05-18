@@ -1,12 +1,13 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.On;
+import it.donatoleone.sqlutil.interfaces.common.CommonOperations;
+import it.donatoleone.sqlutil.interfaces.select.On;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Extended base implementation of {@link it.donatoleone.sqlutil.interfaces.CommonOperations} used
+ * Extended base implementation of {@link CommonOperations} used
  * for {@link On} cause
  *
  * @see OnBuilder

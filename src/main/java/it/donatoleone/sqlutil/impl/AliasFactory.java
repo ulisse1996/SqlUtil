@@ -1,12 +1,13 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.Alias;
+import it.donatoleone.sqlutil.interfaces.select.Alias;
+import it.donatoleone.sqlutil.interfaces.select.Select;
 import it.donatoleone.sqlutil.util.MessageFactory;
 
 import java.util.Objects;
 
 /**
- * Factory for create Alias used in {@link it.donatoleone.sqlutil.interfaces.Select}
+ * Factory for create Alias used in {@link Select}
  */
 public final class AliasFactory {
 

@@ -1,8 +1,9 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.CompoundOn;
-import it.donatoleone.sqlutil.interfaces.LimitedOn;
-import it.donatoleone.sqlutil.interfaces.SqlQuery;
+import it.donatoleone.sqlutil.interfaces.select.CompoundOn;
+import it.donatoleone.sqlutil.interfaces.select.LimitedOn;
+import it.donatoleone.sqlutil.interfaces.SqlDefinition;
+import it.donatoleone.sqlutil.interfaces.select.On;
 import it.donatoleone.sqlutil.util.StringUtils;
 
 import java.util.Arrays;
@@ -12,7 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Create a {@link CompoundOn} that group a set of {@link it.donatoleone.sqlutil.interfaces.On} cause
+ * Create a {@link CompoundOn} that group a set of {@link On} cause
  */
 final class CompoundOnBuilder implements CompoundOn {
 
@@ -27,15 +28,15 @@ final class CompoundOnBuilder implements CompoundOn {
 
     @Override
     public String getSql() {
-        return doSqlBuild(SqlQuery::getSql);
+        return doSqlBuild(SqlDefinition::getSql);
     }
 
     @Override
     public String getDebugSql() {
-        return doSqlBuild(SqlQuery::getDebugSql);
+        return doSqlBuild(SqlDefinition::getDebugSql);
     }
 
-    private String doSqlBuild(Function<SqlQuery, String> function) {
+    private String doSqlBuild(Function<SqlDefinition, String> function) {
         if (ons.size() == 1) {
             return StringUtils.replaceSingle(function.apply(ons.get(0)));
         } else {

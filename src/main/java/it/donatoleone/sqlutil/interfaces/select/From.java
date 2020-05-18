@@ -1,7 +1,9 @@
-package it.donatoleone.sqlutil.interfaces;
+package it.donatoleone.sqlutil.interfaces.select;
 
 import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.enums.Ordering;
+import it.donatoleone.sqlutil.interfaces.SqlDefinition;
+import it.donatoleone.sqlutil.interfaces.common.WhereFilter;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface From extends SqlQuery, WhereFilter<From> {
+public interface From extends SqlDefinition, WhereFilter<From> {
 
     // Query Methods
     From withId(String tableId);

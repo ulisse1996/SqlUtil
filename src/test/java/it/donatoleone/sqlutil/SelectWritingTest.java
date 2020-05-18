@@ -7,7 +7,7 @@ import it.donatoleone.sqlutil.impl.AliasFactory;
 import it.donatoleone.sqlutil.impl.OnFactory;
 import it.donatoleone.sqlutil.impl.SqlUtil;
 import it.donatoleone.sqlutil.impl.WhereFactory;
-import it.donatoleone.sqlutil.interfaces.From;
+import it.donatoleone.sqlutil.interfaces.select.From;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;

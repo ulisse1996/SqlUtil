@@ -1,4 +1,4 @@
-package it.donatoleone.sqlutil.interfaces;
+package it.donatoleone.sqlutil.interfaces.select;
 
 /**
  * Extended Function that throw an {@link Exception} during {@link #apply(Object)} method

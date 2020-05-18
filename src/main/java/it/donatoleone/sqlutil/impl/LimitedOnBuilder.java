@@ -1,6 +1,6 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.LimitedOn;
+import it.donatoleone.sqlutil.interfaces.select.LimitedOn;
 
 final class LimitedOnBuilder extends BaseOn<LimitedOn> implements LimitedOn {
 

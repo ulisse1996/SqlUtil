@@ -2,8 +2,9 @@ package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.enums.LikeMatcher;
 import it.donatoleone.sqlutil.enums.OperationType;
-import it.donatoleone.sqlutil.interfaces.CommonOperations;
-import it.donatoleone.sqlutil.interfaces.From;
+import it.donatoleone.sqlutil.interfaces.common.CommonOperations;
+import it.donatoleone.sqlutil.interfaces.common.LimitedWhere;
+import it.donatoleone.sqlutil.interfaces.select.From;
 import it.donatoleone.sqlutil.util.StringUtils;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ abstract class BaseCommonOperations<N> implements CommonOperations<N> {
      * Get return element after an operation build
      *
      * @see From
-     * @see it.donatoleone.sqlutil.interfaces.LimitedWhere
+     * @see LimitedWhere
      * @return return Type
      */
     abstract N getReturn();

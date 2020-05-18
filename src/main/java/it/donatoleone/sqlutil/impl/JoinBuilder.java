@@ -2,6 +2,10 @@ package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.interfaces.select.CompoundOn;
+import it.donatoleone.sqlutil.interfaces.select.From;
+import it.donatoleone.sqlutil.interfaces.select.Join;
+import it.donatoleone.sqlutil.interfaces.select.On;
 
 import java.util.List;
 import java.util.function.Function;
@@ -34,10 +38,10 @@ final class JoinBuilder implements Join {
 
     @Override
     public String getSql() {
-        return doSqlBuild(SqlQuery::getSql);
+        return doSqlBuild(SqlDefinition::getSql);
     }
 
-    private String doSqlBuild(Function<SqlQuery, String> function) {
+    private String doSqlBuild(Function<SqlDefinition, String> function) {
         StringBuilder builder = new StringBuilder();
         builder.append(joinType.getValue())
                 .append(" ")
@@ -53,7 +57,7 @@ final class JoinBuilder implements Join {
 
     @Override
     public String getDebugSql() {
-        return doSqlBuild(SqlQuery::getDebugSql);
+        return doSqlBuild(SqlDefinition::getDebugSql);
     }
 
     @Override

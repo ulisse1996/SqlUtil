@@ -1,7 +1,7 @@
 package it.donatoleone.sqlutil.util;
 
 import it.donatoleone.sqlutil.exceptions.SQLRuntimeException;
-import it.donatoleone.sqlutil.interfaces.ThrowingFunction;
+import it.donatoleone.sqlutil.interfaces.select.ThrowingFunction;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;

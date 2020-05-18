@@ -1,4 +1,6 @@
-package it.donatoleone.sqlutil.interfaces;
+package it.donatoleone.sqlutil.interfaces.common;
+
+import it.donatoleone.sqlutil.interfaces.select.From;
 
 public interface WhereFilter<T> {
 

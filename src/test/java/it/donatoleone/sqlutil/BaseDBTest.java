@@ -28,7 +28,9 @@ public abstract class BaseDBTest {
         prop.put("user", "sa");
         prop.put("password", "");
         dataSource = JDBCDataSourceFactory.createDataSource(prop);
-        initDb(sqlFile);
+        if (!sqlFile.isEmpty()) {
+            initDb(sqlFile);
+        }
     }
 
     private static void initDb(String sqlFile) throws Exception {

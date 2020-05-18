@@ -1,6 +1,10 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.interfaces.insert.Insert;
+import it.donatoleone.sqlutil.interfaces.insert.InsertingValue;
+import it.donatoleone.sqlutil.interfaces.insert.LimitedInsert;
+import it.donatoleone.sqlutil.interfaces.insert.LimitedInsertingValue;
+import it.donatoleone.sqlutil.interfaces.select.From;
 import it.donatoleone.sqlutil.util.MessageFactory;
 import it.donatoleone.sqlutil.util.StringUtils;
 

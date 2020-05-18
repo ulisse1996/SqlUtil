@@ -1,7 +1,9 @@
 package it.donatoleone.sqlutil.enums;
 
+import it.donatoleone.sqlutil.interfaces.common.CommonOperations;
+
 /**
- * Define available operations for {@link it.donatoleone.sqlutil.interfaces.CommonOperations}
+ * Define available operations for {@link CommonOperations}
  */
 public enum OperationType {
 

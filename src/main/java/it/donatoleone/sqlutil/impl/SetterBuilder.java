@@ -1,8 +1,8 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.From;
-import it.donatoleone.sqlutil.interfaces.Setter;
-import it.donatoleone.sqlutil.interfaces.Update;
+import it.donatoleone.sqlutil.interfaces.select.From;
+import it.donatoleone.sqlutil.interfaces.update.Setter;
+import it.donatoleone.sqlutil.interfaces.update.Update;
 import it.donatoleone.sqlutil.util.MessageFactory;
 import it.donatoleone.sqlutil.util.StringUtils;
 

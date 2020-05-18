@@ -1,6 +1,6 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.LimitedWhere;
+import it.donatoleone.sqlutil.interfaces.common.LimitedWhere;
 
 import java.util.List;
 

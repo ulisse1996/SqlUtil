@@ -3,6 +3,10 @@ package it.donatoleone.sqlutil.impl;
 import it.donatoleone.sqlutil.enums.JoinType;
 import it.donatoleone.sqlutil.enums.Ordering;
 import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.interfaces.select.From;
+import it.donatoleone.sqlutil.interfaces.select.Join;
+import it.donatoleone.sqlutil.interfaces.select.Select;
+import it.donatoleone.sqlutil.interfaces.select.ThrowingFunction;
 import it.donatoleone.sqlutil.util.Pair;
 import it.donatoleone.sqlutil.util.QueryRunner;
 import it.donatoleone.sqlutil.util.StringUtils;
@@ -37,7 +41,7 @@ final class FromBuilder extends WhereFilterBuilder<From> implements From {
         StringBuilder builder = new StringBuilder();
         builder.append(String.join(" ", parent.getSql(), "FROM " + table ))
             .append(this.tableId != null ? " "+tableId : "");
-        buildParts(builder, SqlQuery::getSql);
+        buildParts(builder, SqlDefinition::getSql);
         return builder.toString();
     }
 
@@ -46,11 +50,11 @@ final class FromBuilder extends WhereFilterBuilder<From> implements From {
         StringBuilder builder = new StringBuilder();
         builder.append(String.join(" ", parent.getDebugSql(), "FROM " + table))
                 .append(this.tableId != null ? " "+tableId : "");
-        buildParts(builder, SqlQuery::getDebugSql);
+        buildParts(builder, SqlDefinition::getDebugSql);
         return builder.toString();
     }
 
-    private void buildParts(StringBuilder builder, Function<SqlQuery, String> function) {
+    private void buildParts(StringBuilder builder, Function<SqlDefinition, String> function) {
         if (!this.joins.isEmpty()) {
             extractJoins(builder, function);
         }
@@ -80,7 +84,7 @@ final class FromBuilder extends WhereFilterBuilder<From> implements From {
                 }).collect(Collectors.joining(", ")));
     }
 
-    private void extractJoins(StringBuilder builder, Function<SqlQuery, String> function) {
+    private void extractJoins(StringBuilder builder, Function<SqlDefinition, String> function) {
         this.joins.forEach(join -> {
             builder.append(" ");
             String sql = function.apply(join);

@@ -1,7 +1,9 @@
 package it.donatoleone.sqlutil.enums;
 
+import it.donatoleone.sqlutil.interfaces.common.CommonOperations;
+
 /**
- * Define how match like operator in {@link it.donatoleone.sqlutil.interfaces.CommonOperations}
+ * Define how match like operator in {@link CommonOperations}
  */
 public enum LikeMatcher {
     FULL_MATCH,

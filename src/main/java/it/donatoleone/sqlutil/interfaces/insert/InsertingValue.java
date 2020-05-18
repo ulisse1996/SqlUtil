@@ -1,4 +1,4 @@
-package it.donatoleone.sqlutil.interfaces;
+package it.donatoleone.sqlutil.interfaces.insert;
 
 public interface InsertingValue extends Inserted {
 

@@ -1,6 +1,6 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.From;
+import it.donatoleone.sqlutil.interfaces.select.From;
 
 final class OnBuilder extends BaseOn<From> {
 

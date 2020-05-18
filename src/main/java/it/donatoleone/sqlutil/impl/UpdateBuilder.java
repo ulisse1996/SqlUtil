@@ -1,6 +1,8 @@
 package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.interfaces.update.Setter;
+import it.donatoleone.sqlutil.interfaces.update.Update;
 import it.donatoleone.sqlutil.util.QueryRunner;
 
 import javax.sql.DataSource;
@@ -58,7 +60,7 @@ final class UpdateBuilder extends WhereFilterBuilder<Update> implements Update {
         QueryRunner.execute(getSql(), getParams(), connection);
     }
 
-    private void buildParts(StringBuilder builder, Function<SqlQuery, String> function) {
+    private void buildParts(StringBuilder builder, Function<SqlDefinition, String> function) {
         if (!this.wheres.isEmpty()) {
             extractWheres(builder, function, this.wheres);
         }
@@ -67,7 +69,7 @@ final class UpdateBuilder extends WhereFilterBuilder<Update> implements Update {
         }
     }
 
-    private void buildSetter(StringBuilder builder, Function<SqlQuery, String> function) {
+    private void buildSetter(StringBuilder builder, Function<SqlDefinition, String> function) {
         if (this.setters.size() == 1) {
             this.setters.forEach(set -> builder.append(function.apply(set)));
         } else {
@@ -88,8 +90,8 @@ final class UpdateBuilder extends WhereFilterBuilder<Update> implements Update {
     public String getSql() {
         StringBuilder builder = new StringBuilder();
         builder.append("UPDATE ").append(table).append(" ");
-        buildSetter(builder, SqlQuery::getSql);
-        buildParts(builder, SqlQuery::getSql);
+        buildSetter(builder, SqlDefinition::getSql);
+        buildParts(builder, SqlDefinition::getSql);
         return builder.toString();
     }
 
@@ -97,8 +99,8 @@ final class UpdateBuilder extends WhereFilterBuilder<Update> implements Update {
     public String getDebugSql() {
         StringBuilder builder = new StringBuilder();
         builder.append("UPDATE ").append(table).append(" ");
-        buildSetter(builder, SqlQuery::getDebugSql);
-        buildParts(builder, SqlQuery::getDebugSql);
+        buildSetter(builder, SqlDefinition::getDebugSql);
+        buildParts(builder, SqlDefinition::getDebugSql);
         return builder.toString();
     }
 }

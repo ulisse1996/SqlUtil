@@ -1,6 +1,10 @@
 package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.interfaces.common.CompoundWhere;
+import it.donatoleone.sqlutil.interfaces.common.Where;
+import it.donatoleone.sqlutil.interfaces.common.WhereFilter;
+import it.donatoleone.sqlutil.interfaces.select.From;
 import it.donatoleone.sqlutil.util.StringUtils;
 
 import java.util.ArrayList;
@@ -67,7 +71,7 @@ abstract class WhereFilterBuilder<T> implements WhereFilter<T> {
         return getReturn();
     }
 
-    public void extractCompound(StringBuilder builder, Function<SqlQuery, String> function,
+    public void extractCompound(StringBuilder builder, Function<SqlDefinition, String> function,
                                        List<CompoundWhere> compoundWheres,
                                        boolean whereEmpty) {
         if (!whereEmpty) {
@@ -83,7 +87,7 @@ abstract class WhereFilterBuilder<T> implements WhereFilter<T> {
         }
     }
 
-    private void buildInside(StringBuilder builder, Function<SqlQuery, String> function,
+    private void buildInside(StringBuilder builder, Function<SqlDefinition, String> function,
                                     List<CompoundWhere> wheres) {
         for (CompoundWhere where : wheres) {
             String sql = function.apply(where);
@@ -94,7 +98,7 @@ abstract class WhereFilterBuilder<T> implements WhereFilter<T> {
         }
     }
 
-    protected void extractWheres(StringBuilder builder, Function<SqlQuery,String> function, List<Where<T>> wheres) {
+    protected void extractWheres(StringBuilder builder, Function<SqlDefinition,String> function, List<Where<T>> wheres) {
         if (wheres.size() != 1) {
             builder.append(WHERE_STR).append(
                     function.apply(wheres.get(0))

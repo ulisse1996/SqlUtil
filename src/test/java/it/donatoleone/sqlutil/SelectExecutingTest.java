@@ -7,10 +7,8 @@ import it.donatoleone.sqlutil.impl.AliasFactory;
 import it.donatoleone.sqlutil.impl.OnFactory;
 import it.donatoleone.sqlutil.impl.SqlUtil;
 import it.donatoleone.sqlutil.impl.WhereFactory;
-import it.donatoleone.sqlutil.interfaces.ThrowingFunction;
+import it.donatoleone.sqlutil.interfaces.select.ThrowingFunction;
 import it.donatoleone.sqlutil.util.Pair;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

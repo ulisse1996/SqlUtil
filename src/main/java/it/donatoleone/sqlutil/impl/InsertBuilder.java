@@ -1,6 +1,10 @@
 package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.interfaces.insert.Insert;
+import it.donatoleone.sqlutil.interfaces.insert.Inserted;
+import it.donatoleone.sqlutil.interfaces.insert.InsertingValue;
+import it.donatoleone.sqlutil.interfaces.insert.LimitedInsertingValue;
 import it.donatoleone.sqlutil.util.MessageFactory;
 import it.donatoleone.sqlutil.util.QueryRunner;
 
@@ -65,23 +69,23 @@ final class InsertBuilder implements Insert {
     @Override
     public String getSql() {
         if (isSubQuery()) {
-            return getSql("INSERT INTO %s (%s) %s", SqlQuery::getSql);
+            return getSql("INSERT INTO %s (%s) %s", SqlDefinition::getSql);
         }
-        return getSql("INSERT INTO %s (%s) VALUES (%s)", SqlQuery::getSql);
+        return getSql("INSERT INTO %s (%s) VALUES (%s)", SqlDefinition::getSql);
     }
 
     @Override
     public String getDebugSql() {
         if (isSubQuery()) {
-            return getSql("INSERT INTO %s (%s) %s", SqlQuery::getDebugSql);
+            return getSql("INSERT INTO %s (%s) %s", SqlDefinition::getDebugSql);
         }
         return String.format("INSERT INTO %s (%s) VALUES (%s)",
                 this.table,
                 this.insertingValues.stream().flatMap(in -> in.getColumns().stream()).collect(Collectors.joining(",")),
-                this.insertingValues.stream().map(SqlQuery::getDebugSql).collect(Collectors.joining(",")));
+                this.insertingValues.stream().map(SqlDefinition::getDebugSql).collect(Collectors.joining(",")));
     }
 
-    private String getSql(String format, Function<SqlQuery, String> function) {
+    private String getSql(String format, Function<SqlDefinition, String> function) {
         return String.format(format,
                 this.table,
                 this.insertingValues.stream().flatMap(in -> in.getColumns().stream()).collect(Collectors.joining(",")),

@@ -1,7 +1,16 @@
 package it.donatoleone.sqlutil.impl;
 
 import it.donatoleone.sqlutil.enums.JoinType;
-import it.donatoleone.sqlutil.interfaces.*;
+import it.donatoleone.sqlutil.interfaces.common.LimitedWhere;
+import it.donatoleone.sqlutil.interfaces.common.Where;
+import it.donatoleone.sqlutil.interfaces.create.ColumnDefinition;
+import it.donatoleone.sqlutil.interfaces.create.CreateTable;
+import it.donatoleone.sqlutil.interfaces.insert.Insert;
+import it.donatoleone.sqlutil.interfaces.insert.InsertingValue;
+import it.donatoleone.sqlutil.interfaces.insert.LimitedInsertingValue;
+import it.donatoleone.sqlutil.interfaces.select.*;
+import it.donatoleone.sqlutil.interfaces.update.Setter;
+import it.donatoleone.sqlutil.interfaces.update.Update;
 
 final class StatementFactory {
 
@@ -81,5 +90,13 @@ final class StatementFactory {
 
     static Setter buildSetter(String column, Update parent) {
         return new SetterBuilder(column, parent);
+    }
+
+    static CreateTable buildCreateTable(String table) {
+        return new CreateTableBuilder(table);
+    }
+
+    static ColumnDefinition buildColumn(String column, CreateTable parent) {
+        return new ColumnDefinitionBuilder(column, parent);
     }
 }

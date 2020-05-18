@@ -1,12 +1,14 @@
-package it.donatoleone.sqlutil.interfaces;
+package it.donatoleone.sqlutil.interfaces.create;
+
+import it.donatoleone.sqlutil.interfaces.SqlDefinition;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface Update extends SqlQuery, WhereFilter<Update> {
+public interface CreateTable extends SqlDefinition {
 
-    Setter set(String column);
+    ColumnDefinition column(String column);
 
     void execute(DataSource dataSource) throws SQLException;
     void execute(Connection connection) throws SQLException;

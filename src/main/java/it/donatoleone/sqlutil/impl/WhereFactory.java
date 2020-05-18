@@ -1,8 +1,8 @@
 package it.donatoleone.sqlutil.impl;
 
-import it.donatoleone.sqlutil.interfaces.CompoundWhere;
-import it.donatoleone.sqlutil.interfaces.LimitedWhere;
-import it.donatoleone.sqlutil.interfaces.Where;
+import it.donatoleone.sqlutil.interfaces.common.CompoundWhere;
+import it.donatoleone.sqlutil.interfaces.common.LimitedWhere;
+import it.donatoleone.sqlutil.interfaces.common.Where;
 
 public final class WhereFactory {
 
